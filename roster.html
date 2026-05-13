@@ -29,73 +29,111 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
 .page-title { font-family:'Barlow Condensed',sans-serif; font-size:32px; font-weight:900; text-transform:uppercase; }
 .week-nav { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 .week-label { font-size:14px; font-weight:600; color:rgba(255,255,255,0.6); min-width:160px; text-align:center; }
-.legend { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
-.legend-item { display:flex; align-items:center; gap:7px; padding:5px 12px; border-radius:20px; font-size:12px; font-weight:700; border:1.5px solid; }
 .roster-wrap { overflow-x:auto; }
-.roster-table { width:100%; border-collapse:collapse; background:#0F172A; border-radius:8px; overflow:hidden; border:1px solid #1E293B; min-width:700px; }
+.roster-table { width:100%; border-collapse:collapse; background:#0F172A; border-radius:8px; overflow:hidden; border:1px solid #1E293B; min-width:750px; }
 .roster-table th { background:#1E293B; padding:12px 10px; text-align:center; font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#64748B; }
-.roster-table th:first-child { text-align:left; padding-left:20px; width:210px; }
-.roster-table td { border-top:1px solid #1E293B; padding:10px 6px; text-align:center; }
+.roster-table th:first-child { text-align:left; padding-left:20px; width:200px; }
+.roster-table td { border-top:1px solid #1E293B; padding:6px; text-align:center; }
 .roster-table td:first-child { padding-left:20px; text-align:left; }
-.roster-table tr:hover td { background:rgba(255,255,255,0.02); }
+.roster-table tr:hover td { background:rgba(255,255,255,0.015); }
 .emp-info { display:flex; align-items:center; gap:10px; }
 .emp-avatar { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#fff; flex-shrink:0; }
 .emp-name { font-size:13px; font-weight:600; }
 .emp-role { font-size:11px; color:#64748B; }
 .emp-hours { font-size:11px; color:#F26522; }
-.pill { padding:5px 8px; border-radius:6px; font-size:11px; font-weight:700; border:1.5px solid; cursor:pointer; display:inline-block; transition:all 0.15s; white-space:nowrap; min-width:80px; }
-.pill:hover { transform:scale(0.95); filter:brightness(1.1); }
-.modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:100; align-items:center; justify-content:center; }
+.shift-cell { padding:6px 8px; border-radius:6px; font-size:11px; font-weight:700; border:1.5px solid; cursor:pointer; display:inline-block; transition:all 0.15s; white-space:nowrap; min-width:90px; line-height:1.4; }
+.shift-cell:hover { transform:scale(0.96); filter:brightness(1.1); }
+.shift-cell.is-off { color:#4B5563; background:rgba(75,85,99,0.08); border-color:rgba(75,85,99,0.2); }
+.shift-cell.is-on { color:#F26522; background:rgba(242,101,34,0.1); border-color:rgba(242,101,34,0.4); }
+.rm-btn { background:none; border:none; color:#475569; cursor:pointer; font-size:15px; padding:2px 6px; transition:color 0.2s; }
+.rm-btn:hover { color:#EF4444; }
+.empty { text-align:center; padding:60px; color:#64748B; font-size:15px; }
+
+/* MODAL */
+.modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:100; align-items:center; justify-content:center; padding:20px; }
 .modal-bg.open { display:flex; }
-.modal { background:#1E293B; border-radius:12px; padding:28px; min-width:280px; border:1px solid #334155; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
-.modal h3 { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; text-transform:uppercase; margin-bottom:6px; }
-.modal-sub { font-size:13px; color:#64748B; margin-bottom:20px; }
-.shift-opt { padding:12px 16px; border-radius:8px; cursor:pointer; border:2px solid transparent; transition:all 0.15s; margin-bottom:8px; font-family:'Barlow',sans-serif; width:100%; text-align:left; }
-.shift-opt:hover { transform:scale(1.01); }
-.cancel-btn { background:#334155; color:#94A3B8; border:none; padding:10px; width:100%; border-radius:6px; cursor:pointer; font-family:'Barlow',sans-serif; font-size:14px; font-weight:600; margin-top:4px; }
-.cancel-btn:hover { background:#475569; }
+.modal { background:#1E293B; border-radius:14px; padding:28px; width:100%; max-width:480px; border:1px solid #334155; box-shadow:0 24px 60px rgba(0,0,0,0.6); max-height:90vh; overflow-y:auto; }
+.modal h3 { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:800; text-transform:uppercase; margin-bottom:4px; }
+.modal-sub { font-size:13px; color:#64748B; margin-bottom:22px; }
+.time-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px; }
+.time-group label { font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#64748B; display:block; margin-bottom:6px; }
+.time-group select { width:100%; background:#0F172A; border:1.5px solid #334155; color:#E2E8F0; padding:10px 12px; border-radius:6px; font-family:'Barlow',sans-serif; font-size:14px; outline:none; transition:border-color 0.2s; }
+.time-group select:focus { border-color:#F26522; }
+.time-group select option { background:#1E293B; }
+.duration-display { background:rgba(242,101,34,0.08); border:1px solid rgba(242,101,34,0.2); border-radius:6px; padding:10px 14px; text-align:center; margin-bottom:20px; font-size:13px; color:#F26522; font-weight:600; }
+.workers-label { font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#64748B; margin-bottom:10px; }
+.workers-list { display:flex; flex-direction:column; gap:6px; margin-bottom:20px; max-height:200px; overflow-y:auto; }
+.worker-check { display:flex; align-items:center; gap:10px; padding:9px 12px; background:#0F172A; border-radius:6px; border:1px solid #334155; cursor:pointer; transition:border-color 0.2s; }
+.worker-check:hover { border-color:#F26522; }
+.worker-check input[type=checkbox] { width:16px; height:16px; accent-color:#F26522; cursor:pointer; flex-shrink:0; }
+.worker-avatar { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#fff; flex-shrink:0; }
+.worker-name { font-size:13px; font-weight:600; flex:1; }
+.worker-current { font-size:11px; color:#64748B; }
+.modal-actions { display:flex; gap:10px; }
+.modal-actions button { flex:1; padding:12px; border-radius:6px; cursor:pointer; font-family:'Barlow',sans-serif; font-size:14px; font-weight:700; border:none; transition:all 0.2s; }
+.btn-cancel { background:#334155; color:#94A3B8; }
+.btn-cancel:hover { background:#475569; }
+.btn-off { background:rgba(107,114,128,0.2); color:#9CA3AF; border:1px solid rgba(107,114,128,0.3) !important; }
+.btn-off:hover { background:rgba(107,114,128,0.3); }
+.btn-save { background:#F26522; color:#fff; }
+.btn-save:hover { background:#D4541A; }
+.divider { height:1px; background:#334155; margin:16px 0; }
+
+/* ADD EMPLOYEE MODAL */
 .fg { margin-bottom:14px; }
 .fg label { font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#64748B; display:block; margin-bottom:6px; }
-.fg input, .fg select { width:100%; background:#0F172A; border:1px solid #334155; color:#E2E8F0; padding:11px 14px; border-radius:6px; font-family:'Barlow',sans-serif; font-size:14px; outline:none; transition:border-color 0.2s; }
+.fg input, .fg select { width:100%; background:#0F172A; border:1.5px solid #334155; color:#E2E8F0; padding:11px 14px; border-radius:6px; font-family:'Barlow',sans-serif; font-size:14px; outline:none; transition:border-color 0.2s; }
 .fg input:focus, .fg select:focus { border-color:#F26522; }
 .fg select option { background:#1E293B; }
 .toast { position:fixed; top:20px; right:20px; color:#fff; padding:12px 20px; border-radius:8px; font-weight:700; font-size:14px; z-index:999; display:none; }
-.rm-btn { background:none; border:none; color:#475569; cursor:pointer; font-size:16px; padding:2px 6px; transition:color 0.2s; }
-.rm-btn:hover { color:#EF4444; }
-.empty { text-align:center; padding:60px; color:#64748B; font-size:15px; }
 </style>
 </head>
 <body>
-
 <div class="toast" id="toast"></div>
 
+<!-- SHIFT MODAL -->
 <div class="modal-bg" id="shiftModal" onclick="closeShiftModal()">
   <div class="modal" onclick="event.stopPropagation()">
-    <h3>Assign Shift</h3>
+    <h3>Set Shift</h3>
     <div class="modal-sub" id="modalSub"></div>
-    <div id="shiftOpts"></div>
-    <button class="cancel-btn" onclick="closeShiftModal()">Cancel</button>
+    <div class="time-row">
+      <div class="time-group">
+        <label>Start Time</label>
+        <select id="startTime" onchange="updateDuration()"></select>
+      </div>
+      <div class="time-group">
+        <label>End Time</label>
+        <select id="endTime" onchange="updateDuration()"></select>
+      </div>
+    </div>
+    <div class="duration-display" id="durationDisplay">Duration: —</div>
+    <div class="workers-label">Apply to workers</div>
+    <div class="workers-list" id="workersList"></div>
+    <div class="divider"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeShiftModal()">Cancel</button>
+      <button class="btn-off" onclick="setDayOff()">Day Off</button>
+      <button class="btn-save" onclick="saveShifts()">Save</button>
+    </div>
   </div>
 </div>
 
+<!-- ADD EMPLOYEE MODAL -->
 <div class="modal-bg" id="addModal" onclick="closeAddModal()">
-  <div class="modal" onclick="event.stopPropagation()" style="min-width:320px">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:340px">
     <h3>Add Employee</h3>
-    <div style="height:12px"></div>
+    <div style="height:14px"></div>
     <div class="fg"><label>Full Name</label><input id="newName" placeholder="e.g. Jamie Smith"></div>
     <div class="fg"><label>Role</label>
       <select id="newRole">
-        <option>Traffic Controller</option>
-        <option>Team Leader</option>
-        <option>Supervisor</option>
-        <option>Manager</option>
-        <option>Operations</option>
-        <option>Admin</option>
+        <option>Traffic Controller</option><option>Team Leader</option>
+        <option>Supervisor</option><option>Manager</option>
+        <option>Operations</option><option>Admin</option>
       </select>
     </div>
-    <div style="display:flex;gap:10px;margin-top:6px">
-      <button onclick="closeAddModal()" style="flex:1;padding:10px;background:#334155;color:#94A3B8;border:none;border-radius:6px;cursor:pointer;font-family:Barlow,sans-serif;font-weight:600">Cancel</button>
-      <button onclick="addEmployee()" style="flex:2;padding:10px;background:#F26522;color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:Barlow,sans-serif;font-weight:700">Add Employee</button>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button onclick="closeAddModal()" style="flex:1;padding:11px;background:#334155;color:#94A3B8;border:none;border-radius:6px;cursor:pointer;font-family:Barlow,sans-serif;font-weight:600">Cancel</button>
+      <button onclick="addEmployee()" style="flex:2;padding:11px;background:#F26522;color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:Barlow,sans-serif;font-weight:700">Add Employee</button>
     </div>
   </div>
 </div>
@@ -124,7 +162,6 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
       <button class="btn" onclick="thisWeek()">Today</button>
     </div>
   </div>
-  <div class="legend" id="legend"></div>
   <div class="roster-wrap">
     <table class="roster-table">
       <thead id="tHead"></thead>
@@ -138,19 +175,77 @@ var SURL = 'https://sapvbnvxsuelnossjfee.supabase.co';
 var SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNhcHZibnZ4c3VlbG5vc3NqZmVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MjU0NTQsImV4cCI6MjA5NDIwMTQ1NH0.iPSbdvCYV8oKaVY1MQy5fSKsZLHXPsTx-xGKT3VIaK0';
 var sb = supabase.createClient(SURL, SKEY);
 
-var SHIFTS = [
-  {id:'morning',   label:'Morning',   time:'6:00-14:00',  color:'#F59E0B', bg:'rgba(245,158,11,0.12)',  border:'#F59E0B'},
-  {id:'afternoon', label:'Afternoon', time:'14:00-22:00', color:'#3B82F6', bg:'rgba(59,130,246,0.12)',  border:'#3B82F6'},
-  {id:'night',     label:'Night',     time:'22:00-6:00',  color:'#8B5CF6', bg:'rgba(139,92,246,0.12)', border:'#8B5CF6'},
-  {id:'off',       label:'Day Off',   time:'-',           color:'#6B7280', bg:'rgba(107,114,128,0.1)',  border:'rgba(107,114,128,0.3)'}
-];
 var DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 var COLORS = ['#EF4444','#F97316','#EAB308','#22C55E','#14B8A6','#3B82F6','#8B5CF6','#EC4899','#F26522','#06B6D4'];
 
 var weekOffset = 0;
-var selectedCell = null;
+var currentDay = null;
 var employees = [];
 var roster = {};
+
+// Build 24h time options in 30-min increments
+var TIME_OPTIONS = [];
+for (var h = 0; h < 24; h++) {
+  for (var m = 0; m < 60; m += 30) {
+    var hh = h < 10 ? '0'+h : ''+h;
+    var mm = m === 0 ? '00' : '30';
+    TIME_OPTIONS.push(hh+':'+mm);
+  }
+}
+
+function buildTimeSelects() {
+  var s = document.getElementById('startTime');
+  var e = document.getElementById('endTime');
+  s.innerHTML = '';
+  e.innerHTML = '';
+  for (var i = 0; i < TIME_OPTIONS.length; i++) {
+    var o1 = document.createElement('option'); o1.value = TIME_OPTIONS[i]; o1.textContent = TIME_OPTIONS[i]; s.appendChild(o1);
+    var o2 = document.createElement('option'); o2.value = TIME_OPTIONS[i]; o2.textContent = TIME_OPTIONS[i]; e.appendChild(o2);
+  }
+  s.value = '06:00';
+  e.value = '14:00';
+}
+
+function timeToMins(t) {
+  var parts = t.split(':');
+  return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+}
+
+function calcDuration(start, end) {
+  var s = timeToMins(start);
+  var e = timeToMins(end);
+  var diff = e > s ? e - s : (1440 - s + e);
+  var hrs = Math.floor(diff / 60);
+  var mins = diff % 60;
+  return hrs + (mins > 0 ? '.5' : '') + ' hour' + (diff !== 60 ? 's' : '');
+}
+
+function updateDuration() {
+  var s = document.getElementById('startTime').value;
+  var e = document.getElementById('endTime').value;
+  document.getElementById('durationDisplay').textContent = 'Duration: ' + s + ' to ' + e + '  (' + calcDuration(s, e) + ')';
+}
+
+function getShiftDisplay(shiftVal) {
+  if (!shiftVal || shiftVal === 'off') return null;
+  return shiftVal;
+}
+
+function getHours(empId) {
+  var total = 0;
+  for (var di = 0; di < DAYS.length; di++) {
+    var val = roster[empId + '_' + DAYS[di]];
+    if (val && val !== 'off') {
+      var parts = val.split('-');
+      if (parts.length === 2) {
+        var s = timeToMins(parts[0]);
+        var e = timeToMins(parts[1]);
+        total += e > s ? (e - s) : (1440 - s + e);
+      }
+    }
+  }
+  return Math.round(total / 60 * 10) / 10;
+}
 
 var user = JSON.parse(sessionStorage.getItem('vtm_user') || 'null');
 if (!user || user.role !== 'admin') { window.location.href = 'login.html'; }
@@ -176,18 +271,6 @@ function getWeekDates() {
   return result;
 }
 
-function getShift(empId, day) {
-  var shiftId = roster[empId + '_' + day];
-  for (var i = 0; i < SHIFTS.length; i++) { if (SHIFTS[i].id === shiftId) return SHIFTS[i]; }
-  return SHIFTS[3];
-}
-
-function getHours(empId) {
-  var h = 0;
-  for (var i = 0; i < DAYS.length; i++) { if (getShift(empId, DAYS[i]).id !== 'off') h += 8; }
-  return h;
-}
-
 function setSyncStatus(s) {
   var el = document.getElementById('syncEl');
   el.className = 'sync';
@@ -209,28 +292,16 @@ function render() {
   var today = new Date();
   document.getElementById('weekLabel').textContent = dates[0].month + ' ' + dates[0].date + ' - ' + dates[6].month + ' ' + dates[6].date;
 
-  var leg = '';
-  for (var si = 0; si < SHIFTS.length; si++) {
-    var s = SHIFTS[si];
-    var count = 0;
-    for (var ei = 0; ei < employees.length; ei++) {
-      for (var di = 0; di < DAYS.length; di++) {
-        if (getShift(employees[ei].id, DAYS[di]).id === s.id) count++;
-      }
-    }
-    leg += '<div class="legend-item" style="color:'+s.color+';background:'+s.bg+';border-color:'+s.border+'">';
-    leg += '<div style="width:8px;height:8px;border-radius:50%;background:'+s.color+'"></div>';
-    leg += s.label+' ('+count+')</div>';
-  }
-  document.getElementById('legend').innerHTML = leg;
-
   var head = '<tr><th>Employee</th>';
   for (var di = 0; di < dates.length; di++) {
     var d = dates[di];
     var isToday = d.full.toDateString() === today.toDateString();
     var c = isToday ? '#F26522' : '#E2E8F0';
-    head += '<th><div style="font-family:Barlow Condensed,sans-serif;font-size:20px;font-weight:800;color:'+c+'">'+d.date+'</div>';
-    head += '<div style="font-size:10px;color:#475569">'+d.day+' '+d.month+'</div></th>';
+    head += '<th style="cursor:pointer" onclick="openDayModal(\''+d.day+'\')">';
+    head += '<div style="font-family:Barlow Condensed,sans-serif;font-size:20px;font-weight:800;color:'+c+'">'+d.date+'</div>';
+    head += '<div style="font-size:10px;color:#475569">'+d.day+' '+d.month+'</div>';
+    head += '<div style="font-size:9px;color:#334155;margin-top:2px">click to bulk assign</div>';
+    head += '</th>';
   }
   head += '<th></th></tr>';
   document.getElementById('tHead').innerHTML = head;
@@ -254,11 +325,13 @@ function render() {
       body += '<div class="emp-hours">'+hours+'h/wk</div></div></div></td>';
       for (var di = 0; di < DAYS.length; di++) {
         var day = DAYS[di];
-        var shift = getShift(emp.id, day);
-        body += '<td><span class="pill" ';
-        body += 'style="color:'+shift.color+';background:'+shift.bg+';border-color:'+shift.border+'" ';
-        body += 'onclick="openShiftModal('+emp.id+',\''+day+'\')">'+shift.label;
-        body += '<br><span style="font-weight:400;font-size:10px">'+shift.time+'</span></span></td>';
+        var val = roster[emp.id + '_' + day];
+        var isOff = !val || val === 'off';
+        var cellClass = isOff ? 'shift-cell is-off' : 'shift-cell is-on';
+        var cellText = isOff ? 'Day Off' : val;
+        body += '<td><span class="'+cellClass+'" onclick="openEmpModal('+emp.id+',\''+day+'\')">';
+        body += cellText;
+        body += '</span></td>';
       }
       body += '<td><button class="rm-btn" onclick="removeEmp('+emp.id+')">x</button></td>';
       body += '</tr>';
@@ -266,6 +339,107 @@ function render() {
   }
   document.getElementById('tBody').innerHTML = body;
 }
+
+// Open modal for a single employee
+function openEmpModal(empId, day) {
+  currentDay = day;
+  var emp = null;
+  for (var i = 0; i < employees.length; i++) { if (employees[i].id === empId) { emp = employees[i]; break; } }
+  document.getElementById('modalSub').textContent = (emp ? emp.name : '') + ' — ' + day;
+  buildTimeSelects();
+  // Pre-fill with existing shift
+  var existing = roster[empId + '_' + day];
+  if (existing && existing !== 'off') {
+    var pts = existing.split('-');
+    if (pts.length === 2) {
+      document.getElementById('startTime').value = pts[0];
+      document.getElementById('endTime').value = pts[1];
+    }
+  }
+  updateDuration();
+  // Workers list — pre-check only this employee
+  var wlist = document.getElementById('workersList');
+  wlist.innerHTML = '';
+  for (var i = 0; i < employees.length; i++) {
+    var e = employees[i];
+    var checked = e.id === empId ? 'checked' : '';
+    var currentShift = roster[e.id + '_' + day];
+    var currentLabel = (!currentShift || currentShift === 'off') ? 'Day Off' : currentShift;
+    var initials = e.name.split(' ').map(function(n){ return n[0]; }).join('');
+    wlist.innerHTML += '<label class="worker-check"><input type="checkbox" value="'+e.id+'" '+checked+'><div class="worker-avatar" style="background:'+e.color+'">'+initials+'</div><div class="worker-name">'+e.name+'</div><div class="worker-current">'+currentLabel+'</div></label>';
+  }
+  document.getElementById('shiftModal').classList.add('open');
+}
+
+// Open modal for a full day (bulk assign)
+function openDayModal(day) {
+  currentDay = day;
+  document.getElementById('modalSub').textContent = 'Bulk assign — ' + day;
+  buildTimeSelects();
+  updateDuration();
+  // Workers list — check all by default
+  var wlist = document.getElementById('workersList');
+  wlist.innerHTML = '';
+  for (var i = 0; i < employees.length; i++) {
+    var e = employees[i];
+    var currentShift = roster[e.id + '_' + day];
+    var currentLabel = (!currentShift || currentShift === 'off') ? 'Day Off' : currentShift;
+    var initials = e.name.split(' ').map(function(n){ return n[0]; }).join('');
+    wlist.innerHTML += '<label class="worker-check"><input type="checkbox" value="'+e.id+'" checked><div class="worker-avatar" style="background:'+e.color+'">'+initials+'</div><div class="worker-name">'+e.name+'</div><div class="worker-current">'+currentLabel+'</div></label>';
+  }
+  document.getElementById('shiftModal').classList.add('open');
+}
+
+async function saveShifts() {
+  var start = document.getElementById('startTime').value;
+  var end = document.getElementById('endTime').value;
+  var shiftVal = start + '-' + end;
+  var checked = document.querySelectorAll('#workersList input[type=checkbox]:checked');
+  if (checked.length === 0) { showToast('Select at least one worker', true); return; }
+  closeShiftModal();
+  setSyncStatus('saving');
+  var weekStart = getWeekStart();
+  var upserts = [];
+  for (var i = 0; i < checked.length; i++) {
+    upserts.push({employee_id: parseInt(checked[i].value), week_start: weekStart, day: currentDay, shift_type: shiftVal, updated_at: new Date().toISOString()});
+  }
+  try {
+    var res = await sb.from('roster_shifts').upsert(upserts, {onConflict:'employee_id,week_start,day'});
+    if (res.error) { setSyncStatus('error'); showToast('Save failed: ' + res.error.message, true); return; }
+    for (var i = 0; i < upserts.length; i++) {
+      roster[upserts[i].employee_id + '_' + currentDay] = shiftVal;
+    }
+    setSyncStatus('ok');
+    render();
+    showToast('Saved ' + checked.length + ' shift' + (checked.length > 1 ? 's' : '') + '!');
+  } catch(e) { setSyncStatus('error'); showToast('Error: ' + e.message, true); }
+}
+
+async function setDayOff() {
+  var checked = document.querySelectorAll('#workersList input[type=checkbox]:checked');
+  if (checked.length === 0) { showToast('Select at least one worker', true); return; }
+  closeShiftModal();
+  setSyncStatus('saving');
+  var weekStart = getWeekStart();
+  var upserts = [];
+  for (var i = 0; i < checked.length; i++) {
+    upserts.push({employee_id: parseInt(checked[i].value), week_start: weekStart, day: currentDay, shift_type: 'off', updated_at: new Date().toISOString()});
+  }
+  try {
+    var res = await sb.from('roster_shifts').upsert(upserts, {onConflict:'employee_id,week_start,day'});
+    if (res.error) { setSyncStatus('error'); showToast('Error: ' + res.error.message, true); return; }
+    for (var i = 0; i < upserts.length; i++) {
+      roster[upserts[i].employee_id + '_' + currentDay] = 'off';
+    }
+    setSyncStatus('ok');
+    render();
+    showToast('Day off set for ' + checked.length + ' worker' + (checked.length > 1 ? 's' : '') + '!');
+  } catch(e) { setSyncStatus('error'); showToast('Error: ' + e.message, true); }
+}
+
+function closeShiftModal() { document.getElementById('shiftModal').classList.remove('open'); currentDay = null; }
+function openAddModal() { document.getElementById('addModal').classList.add('open'); }
+function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
 
 async function loadData() {
   setSyncStatus('saving');
@@ -286,51 +460,8 @@ async function loadData() {
     }
     setSyncStatus('ok');
     render();
-  } catch(e) {
-    setSyncStatus('error');
-    showToast('Connection error: ' + e.message, true);
-  }
+  } catch(e) { setSyncStatus('error'); showToast('Connection error: ' + e.message, true); }
 }
-
-function openShiftModal(empId, day) {
-  selectedCell = {empId: empId, day: day};
-  var emp = null;
-  for (var i = 0; i < employees.length; i++) { if (employees[i].id === empId) { emp = employees[i]; break; } }
-  document.getElementById('modalSub').textContent = (emp ? emp.name : '') + ' - ' + day;
-  var opts = '';
-  for (var i = 0; i < SHIFTS.length; i++) {
-    var s = SHIFTS[i];
-    opts += '<button class="shift-opt" style="background:'+s.bg+';border-color:'+s.border+';color:'+s.color+'" ';
-    opts += 'onclick="assignShift(\''+s.id+'\')"><div style="font-weight:700;font-size:14px">'+s.label+'</div>';
-    opts += '<div style="font-size:12px;opacity:0.75">'+s.time+'</div></button>';
-  }
-  document.getElementById('shiftOpts').innerHTML = opts;
-  document.getElementById('shiftModal').classList.add('open');
-}
-
-async function assignShift(shiftId) {
-  if (!selectedCell) return;
-  var empId = selectedCell.empId;
-  var day = selectedCell.day;
-  closeShiftModal();
-  setSyncStatus('saving');
-  var weekStart = getWeekStart();
-  try {
-    var res = await sb.from('roster_shifts').upsert(
-      {employee_id:empId, week_start:weekStart, day:day, shift_type:shiftId, updated_at:new Date().toISOString()},
-      {onConflict:'employee_id,week_start,day'}
-    );
-    if (res.error) { setSyncStatus('error'); showToast('Save failed: ' + res.error.message, true); return; }
-    roster[empId + '_' + day] = shiftId;
-    setSyncStatus('ok');
-    render();
-    showToast('Shift saved!');
-  } catch(e) { setSyncStatus('error'); showToast('Error: ' + e.message, true); }
-}
-
-function closeShiftModal() { document.getElementById('shiftModal').classList.remove('open'); selectedCell = null; }
-function openAddModal() { document.getElementById('addModal').classList.add('open'); }
-function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
 
 async function addEmployee() {
   var name = document.getElementById('newName').value.trim();
