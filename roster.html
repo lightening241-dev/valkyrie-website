@@ -8,79 +8,72 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family: 'Barlow', sans-serif; background: #0F172A; color: #E2E8F0; min-height: 100vh; }
-  nav { display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 68px; background: #0A0A0A; border-bottom: 1px solid rgba(242,101,34,0.2); flex-wrap: wrap; gap: 10px; }
-  .nav-left { display: flex; align-items: center; gap: 16px; }
-  .nav-logo { height: 36px; object-fit: contain; }
-  .nav-title { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 800; text-transform: uppercase; color: #F26522; }
-  .nav-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .nav-user { font-size: 13px; color: rgba(255,255,255,0.4); }
-  .sync-status { font-size: 12px; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
-  .sync-ok { background: rgba(34,197,94,0.15); color: #22C55E; border: 1px solid rgba(34,197,94,0.3); }
-  .sync-saving { background: rgba(242,101,34,0.15); color: #F26522; border: 1px solid rgba(242,101,34,0.3); }
-  .sync-error { background: rgba(239,68,68,0.15); color: #EF4444; border: 1px solid rgba(239,68,68,0.3); }
-  .btn-sm { background: none; border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.5); padding: 7px 14px; border-radius: 3px; font-size: 12px; cursor: pointer; font-family: 'Barlow', sans-serif; transition: all 0.2s; text-decoration: none; display: inline-block; }
-  .btn-sm:hover { border-color: #F26522; color: #F26522; }
-  .btn-orange { background: #F26522 !important; color: #fff !important; border-color: #F26522 !important; font-weight: 700; }
-  .btn-orange:hover { background: #D4541A !important; }
-  .main { padding: 28px 32px; }
-  .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-  .page-title { font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 900; text-transform: uppercase; }
-  .week-nav { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  .week-label { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.6); min-width: 160px; text-align: center; }
-  .shift-legend { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
-  .legend-item { display: flex; align-items: center; gap: 7px; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; border: 1.5px solid; }
-  .roster-wrap { overflow-x: auto; }
-  .roster-table { width: 100%; border-collapse: collapse; background: #0F172A; border-radius: 8px; overflow: hidden; border: 1px solid #1E293B; min-width: 700px; }
-  .roster-table th { background: #1E293B; padding: 12px 10px; text-align: center; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #64748B; }
-  .roster-table th:first-child { text-align: left; padding-left: 20px; width: 210px; }
-  .roster-table td { border-top: 1px solid #1E293B; padding: 10px 6px; text-align: center; }
-  .roster-table td:first-child { padding-left: 20px; text-align: left; }
-  .roster-table tr:hover td { background: rgba(255,255,255,0.02); }
-  .emp-info { display: flex; align-items: center; gap: 10px; }
-  .emp-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; }
-  .emp-name { font-size: 13px; font-weight: 600; }
-  .emp-role { font-size: 11px; color: #64748B; }
-  .emp-hours { font-size: 11px; color: #F26522; }
-  .shift-pill { padding: 5px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; border: 1.5px solid; cursor: pointer; display: inline-block; transition: all 0.15s; white-space: nowrap; min-width: 80px; }
-  .shift-pill:hover { transform: scale(0.95); filter: brightness(1.1); }
-  .shift-pill.saving { opacity: 0.5; cursor: wait; }
-  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; }
-  .modal-bg.open { display: flex; }
-  .modal { background: #1E293B; border-radius: 12px; padding: 28px; min-width: 280px; border: 1px solid #334155; box-shadow: 0 20px 60px rgba(0,0,0,0.5); animation: slideIn 0.2s ease; }
-  .modal h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; text-transform: uppercase; margin-bottom: 6px; }
-  .modal-sub { font-size: 13px; color: #64748B; margin-bottom: 20px; }
-  .shift-option { padding: 12px 16px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; margin-bottom: 8px; font-family: 'Barlow', sans-serif; width: 100%; text-align: left; }
-  .shift-option:hover { transform: scale(1.01); }
-  .shift-option-label { font-weight: 700; font-size: 14px; }
-  .shift-option-time { font-size: 12px; opacity: 0.75; }
-  .modal-cancel { background: #334155; color: #94A3B8; border: none; padding: 10px; width: 100%; border-radius: 6px; cursor: pointer; font-family: 'Barlow', sans-serif; font-size: 14px; font-weight: 600; margin-top: 4px; }
-  .modal-cancel:hover { background: #475569; }
-  .form-group { margin-bottom: 14px; }
-  .form-group label { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #64748B; display: block; margin-bottom: 6px; }
-  .form-group input, .form-group select { width: 100%; background: #0F172A; border: 1px solid #334155; color: #E2E8F0; padding: 11px 14px; border-radius: 6px; font-family: 'Barlow', sans-serif; font-size: 14px; outline: none; transition: border-color 0.2s; }
-  .form-group input:focus, .form-group select:focus { border-color: #F26522; }
-  .form-group select option { background: #1E293B; }
-  .notification { position: fixed; top: 20px; right: 20px; color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 700; font-size: 14px; z-index: 999; display: none; animation: slideIn 0.25s ease; }
-  .remove-btn { background: none; border: none; color: #475569; cursor: pointer; font-size: 16px; padding: 2px 6px; transition: color 0.2s; }
-  .remove-btn:hover { color: #EF4444; }
-  .loading { text-align: center; padding: 60px; color: #64748B; font-size: 16px; }
-  @keyframes slideIn { from { opacity:0; transform: translateY(-8px); } to { opacity:1; transform: translateY(0); } }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.2); border-top-color: #F26522; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Barlow', sans-serif; background: #0F172A; color: #E2E8F0; min-height: 100vh; }
+nav { display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:68px; background:#0A0A0A; border-bottom:1px solid rgba(242,101,34,0.2); flex-wrap:wrap; gap:10px; }
+.nav-left { display:flex; align-items:center; gap:16px; }
+.nav-logo { height:36px; object-fit:contain; }
+.nav-title { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:800; text-transform:uppercase; color:#F26522; }
+.nav-right { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.nav-user { font-size:13px; color:rgba(255,255,255,0.4); }
+.sync { font-size:12px; padding:4px 10px; border-radius:20px; font-weight:600; }
+.sync-ok { background:rgba(34,197,94,0.15); color:#22C55E; border:1px solid rgba(34,197,94,0.3); }
+.sync-saving { background:rgba(242,101,34,0.15); color:#F26522; border:1px solid rgba(242,101,34,0.3); }
+.sync-error { background:rgba(239,68,68,0.15); color:#EF4444; border:1px solid rgba(239,68,68,0.3); }
+.btn { background:none; border:1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.5); padding:7px 14px; border-radius:3px; font-size:12px; cursor:pointer; font-family:'Barlow',sans-serif; transition:all 0.2s; text-decoration:none; display:inline-block; }
+.btn:hover { border-color:#F26522; color:#F26522; }
+.btn-add { background:#F26522; color:#fff; border-color:#F26522; font-weight:700; }
+.btn-add:hover { background:#D4541A; border-color:#D4541A; color:#fff; }
+.main { padding:28px 32px; }
+.top-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
+.page-title { font-family:'Barlow Condensed',sans-serif; font-size:32px; font-weight:900; text-transform:uppercase; }
+.week-nav { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.week-label { font-size:14px; font-weight:600; color:rgba(255,255,255,0.6); min-width:160px; text-align:center; }
+.legend { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+.legend-item { display:flex; align-items:center; gap:7px; padding:5px 12px; border-radius:20px; font-size:12px; font-weight:700; border:1.5px solid; }
+.roster-wrap { overflow-x:auto; }
+.roster-table { width:100%; border-collapse:collapse; background:#0F172A; border-radius:8px; overflow:hidden; border:1px solid #1E293B; min-width:700px; }
+.roster-table th { background:#1E293B; padding:12px 10px; text-align:center; font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#64748B; }
+.roster-table th:first-child { text-align:left; padding-left:20px; width:210px; }
+.roster-table td { border-top:1px solid #1E293B; padding:10px 6px; text-align:center; }
+.roster-table td:first-child { padding-left:20px; text-align:left; }
+.roster-table tr:hover td { background:rgba(255,255,255,0.02); }
+.emp-info { display:flex; align-items:center; gap:10px; }
+.emp-avatar { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#fff; flex-shrink:0; }
+.emp-name { font-size:13px; font-weight:600; }
+.emp-role { font-size:11px; color:#64748B; }
+.emp-hours { font-size:11px; color:#F26522; }
+.pill { padding:5px 8px; border-radius:6px; font-size:11px; font-weight:700; border:1.5px solid; cursor:pointer; display:inline-block; transition:all 0.15s; white-space:nowrap; min-width:80px; }
+.pill:hover { transform:scale(0.95); filter:brightness(1.1); }
+.modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:100; align-items:center; justify-content:center; }
+.modal-bg.open { display:flex; }
+.modal { background:#1E293B; border-radius:12px; padding:28px; min-width:280px; border:1px solid #334155; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
+.modal h3 { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; text-transform:uppercase; margin-bottom:6px; }
+.modal-sub { font-size:13px; color:#64748B; margin-bottom:20px; }
+.shift-opt { padding:12px 16px; border-radius:8px; cursor:pointer; border:2px solid transparent; transition:all 0.15s; margin-bottom:8px; font-family:'Barlow',sans-serif; width:100%; text-align:left; }
+.shift-opt:hover { transform:scale(1.01); }
+.cancel-btn { background:#334155; color:#94A3B8; border:none; padding:10px; width:100%; border-radius:6px; cursor:pointer; font-family:'Barlow',sans-serif; font-size:14px; font-weight:600; margin-top:4px; }
+.cancel-btn:hover { background:#475569; }
+.fg { margin-bottom:14px; }
+.fg label { font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:#64748B; display:block; margin-bottom:6px; }
+.fg input, .fg select { width:100%; background:#0F172A; border:1px solid #334155; color:#E2E8F0; padding:11px 14px; border-radius:6px; font-family:'Barlow',sans-serif; font-size:14px; outline:none; transition:border-color 0.2s; }
+.fg input:focus, .fg select:focus { border-color:#F26522; }
+.fg select option { background:#1E293B; }
+.toast { position:fixed; top:20px; right:20px; color:#fff; padding:12px 20px; border-radius:8px; font-weight:700; font-size:14px; z-index:999; display:none; }
+.rm-btn { background:none; border:none; color:#475569; cursor:pointer; font-size:16px; padding:2px 6px; transition:color 0.2s; }
+.rm-btn:hover { color:#EF4444; }
+.empty { text-align:center; padding:60px; color:#64748B; font-size:15px; }
 </style>
 </head>
 <body>
+<div class="toast" id="toast"></div>
 
-<div class="notification" id="notification"></div>
-
-<div class="modal-bg" id="shiftModal" onclick="closeModal()">
+<div class="modal-bg" id="shiftModal" onclick="closeShiftModal()">
   <div class="modal" onclick="event.stopPropagation()">
     <h3>Assign Shift</h3>
     <div class="modal-sub" id="modalSub"></div>
-    <div id="shiftOptions"></div>
-    <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+    <div id="shiftOpts"></div>
+    <button class="cancel-btn" onclick="closeShiftModal()">Cancel</button>
   </div>
 </div>
 
@@ -88,8 +81,8 @@
   <div class="modal" onclick="event.stopPropagation()" style="min-width:320px">
     <h3>Add Employee</h3>
     <div style="height:12px"></div>
-    <div class="form-group"><label>Full Name</label><input id="newName" placeholder="e.g. Jamie Smith"></div>
-    <div class="form-group"><label>Role</label>
+    <div class="fg"><label>Full Name</label><input id="newName" placeholder="e.g. Jamie Smith"></div>
+    <div class="fg"><label>Role</label>
       <select id="newRole">
         <option>Traffic Controller</option><option>Team Leader</option>
         <option>Supervisor</option><option>Manager</option>
@@ -109,11 +102,11 @@
     <div class="nav-title">Roster Admin</div>
   </div>
   <div class="nav-right">
-    <div class="sync-status sync-ok" id="syncStatus">● Live</div>
+    <div class="sync sync-ok" id="syncEl">&#9679; Live</div>
     <div class="nav-user" id="navUser"></div>
-    <a href="index.html" class="btn-sm">← Website</a>
-    <button class="btn-sm btn-orange" onclick="openAddModal()">+ Add Staff</button>
-    <button class="btn-sm" onclick="logout()">Sign Out</button>
+    <a href="index.html" class="btn">&#8592; Website</a>
+    <button class="btn btn-add" onclick="openAddModal()">+ Add Staff</button>
+    <button class="btn" onclick="doLogout()">Sign Out</button>
   </div>
 </nav>
 
@@ -121,220 +114,213 @@
   <div class="top-bar">
     <div class="page-title">Weekly Schedule</div>
     <div class="week-nav">
-      <button class="btn-sm" onclick="changeWeek(-1)">← Prev</button>
+      <button class="btn" onclick="prevWeek()">&#8592; Prev</button>
       <div class="week-label" id="weekLabel"></div>
-      <button class="btn-sm" onclick="changeWeek(1)">Next →</button>
-      <button class="btn-sm" onclick="goToday()">Today</button>
+      <button class="btn" onclick="nextWeek()">Next &#8594;</button>
+      <button class="btn" onclick="thisWeek()">Today</button>
     </div>
   </div>
-  <div class="shift-legend" id="legend"></div>
+  <div class="legend" id="legend"></div>
   <div class="roster-wrap">
     <table class="roster-table">
-      <thead id="tableHead"></thead>
-      <tbody id="tableBody"><tr><td colspan="9" class="loading"><span class="spinner"></span>Loading roster from database...</td></tr></tbody>
+      <thead id="tHead"></thead>
+      <tbody id="tBody"><tr><td colspan="9" class="empty">Loading roster...</td></tr></tbody>
     </table>
   </div>
 </div>
 
 <script>
-const SUPABASE_URL = 'https://sapvbnvxsuelnossjfee.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNhcHZibnZ4c3VlbG5vc3NqZmVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MjU0NTQsImV4cCI6MjA5NDIwMTQ1NH0.iPSbdvCYV8oKaVY1MQy5fSKsZLHXPsTx-xGKT3VIaK0';
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+var SURL = 'https://sapvbnvxsuelnossjfee.supabase.co';
+var SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNhcHZibnZ4c3VlbG5vc3NqZmVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MjU0NTQsImV4cCI6MjA5NDIwMTQ1NH0.iPSbdvCYV8oKaVY1MQy5fSKsZLHXPsTx-xGKT3VIaK0';
+var sb = supabase.createClient(SURL, SKEY);
 
-const SHIFTS = [
-  { id:"morning",   label:"Morning",   time:"6:00-14:00",  color:"#F59E0B", bg:"rgba(245,158,11,0.12)",  border:"#F59E0B" },
-  { id:"afternoon", label:"Afternoon", time:"14:00-22:00", color:"#3B82F6", bg:"rgba(59,130,246,0.12)",  border:"#3B82F6" },
-  { id:"night",     label:"Night",     time:"22:00-6:00",  color:"#8B5CF6", bg:"rgba(139,92,246,0.12)",  border:"#8B5CF6" },
-  { id:"off",       label:"Day Off",   time:"-",           color:"#6B7280", bg:"rgba(107,114,128,0.1)",  border:"rgba(107,114,128,0.3)" },
+var SHIFTS = [
+  {id:'morning',   label:'Morning',   time:'6:00-14:00',  color:'#F59E0B', bg:'rgba(245,158,11,0.12)',  border:'#F59E0B'},
+  {id:'afternoon', label:'Afternoon', time:'14:00-22:00', color:'#3B82F6', bg:'rgba(59,130,246,0.12)',  border:'#3B82F6'},
+  {id:'night',     label:'Night',     time:'22:00-6:00',  color:'#8B5CF6', bg:'rgba(139,92,246,0.12)', border:'#8B5CF6'},
+  {id:'off',       label:'Day Off',   time:'-',           color:'#6B7280', bg:'rgba(107,114,128,0.1)',  border:'rgba(107,114,128,0.3)'}
 ];
-const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-const COLORS = ["#EF4444","#F97316","#EAB308","#22C55E","#14B8A6","#3B82F6","#8B5CF6","#EC4899","#F26522","#06B6D4"];
+var DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+var COLORS = ['#EF4444','#F97316','#EAB308','#22C55E','#14B8A6','#3B82F6','#8B5CF6','#EC4899','#F26522','#06B6D4'];
 
-let weekOffset = 0;
-let selectedCell = null;
-let employees = [];
-let roster = {};
+var weekOffset = 0;
+var selectedCell = null;
+var employees = [];
+var roster = {};
 
-const user = JSON.parse(sessionStorage.getItem('vtm_user') || 'null');
-if (!user || user.role !== 'admin') window.location.href = 'login.html';
+var user = JSON.parse(sessionStorage.getItem('vtm_user') || 'null');
+if (!user || user.role !== 'admin') { window.location.href = 'login.html'; }
 document.getElementById('navUser').textContent = user.name;
 
 function getWeekStart() {
-  const today = new Date();
-  const monday = new Date(today);
+  var today = new Date();
+  var monday = new Date(today);
   monday.setDate(today.getDate() - ((today.getDay()+6)%7) + weekOffset*7);
   return monday.toISOString().split('T')[0];
 }
 
 function getWeekDates() {
-  const today = new Date();
-  const monday = new Date(today);
+  var today = new Date();
+  var monday = new Date(today);
   monday.setDate(today.getDate() - ((today.getDay()+6)%7) + weekOffset*7);
-  return DAYS.map((d,i) => {
-    const date = new Date(monday);
+  return DAYS.map(function(d,i) {
+    var date = new Date(monday);
     date.setDate(monday.getDate() + i);
-    return { day:d, date:date.getDate(), month:date.toLocaleString('default',{month:'short'}), full:date };
+    return {day:d, date:date.getDate(), month:date.toLocaleString('default',{month:'short'}), full:date};
   });
 }
 
+function shiftById(id) {
+  return SHIFTS.find(function(s){ return s.id === id; }) || SHIFTS[3];
+}
+
 function getShift(empId, day) {
-  const key = empId + '_' + day;
-  const shiftId = roster[key];
-  return SHIFTS.find(s => s.id === shiftId) || SHIFTS[3];
+  return shiftById(roster[empId + '_' + day]);
 }
 
 function getHours(empId) {
-  return DAYS.filter(d => {
-    const shift = getShift(empId, d);
-    return shift.id !== 'off';
-  }).length * 8;
+  return DAYS.filter(function(d){ return getShift(empId,d).id !== 'off'; }).length * 8;
 }
 
 function setSyncStatus(status) {
-  const el = document.getElementById('syncStatus');
-  el.className = 'sync-status';
-  if (status === 'saving') { el.classList.add('sync-saving'); el.innerHTML = '<span class="spinner"></span>Saving...'; }
-  else if (status === 'ok') { el.classList.add('sync-ok'); el.textContent = '● Live'; }
-  else { el.classList.add('sync-error'); el.textContent = '✕ Error'; }
+  var el = document.getElementById('syncEl');
+  el.className = 'sync';
+  if (status === 'saving') { el.classList.add('sync-saving'); el.textContent = 'Saving...'; }
+  else if (status === 'ok') { el.classList.add('sync-ok'); el.innerHTML = '&#9679; Live'; }
+  else { el.classList.add('sync-error'); el.textContent = 'Error'; }
+}
+
+function showToast(msg, isErr) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isErr ? '#EF4444' : '#22C55E';
+  t.style.display = 'block';
+  setTimeout(function(){ t.style.display = 'none'; }, 2500);
 }
 
 async function loadData() {
   setSyncStatus('saving');
-  const weekStart = getWeekStart();
-
-  const { data: empData, error: empErr } = await db.from('employees').select('*').order('id');
-  if (empErr) { setSyncStatus('error'); notify('Could not load employees', true); return; }
-  employees = empData.map((e,i) => ({ ...e, color: e.color || COLORS[i % COLORS.length] }));
-
-  const { data: shiftData, error: shiftErr } = await db.from('roster_shifts').select('*').eq('week_start', weekStart);
-  if (shiftErr) { setSyncStatus('error'); notify('Could not load shifts', true); return; }
-
+  var weekStart = getWeekStart();
+  var empRes = await sb.from('employees').select('*').order('id');
+  if (empRes.error) { setSyncStatus('error'); showToast('Could not load employees', true); return; }
+  employees = empRes.data.map(function(e,i){ return Object.assign({}, e, {color: e.color || COLORS[i % COLORS.length]}); });
+  var shiftRes = await sb.from('roster_shifts').select('*').eq('week_start', weekStart);
+  if (shiftRes.error) { setSyncStatus('error'); showToast('Could not load shifts', true); return; }
   roster = {};
-  shiftData.forEach(s => { roster[s.employee_id + '_' + s.day] = s.shift_type; });
-
+  shiftRes.data.forEach(function(s){ roster[s.employee_id + '_' + s.day] = s.shift_type; });
   setSyncStatus('ok');
   render();
 }
 
 async function saveShift(empId, day, shiftType) {
   setSyncStatus('saving');
-  const weekStart = getWeekStart();
-  const { error } = await db.from('roster_shifts').upsert(
-    { employee_id: empId, week_start: weekStart, day: day, shift_type: shiftType, updated_at: new Date().toISOString() },
-    { onConflict: 'employee_id,week_start,day' }
+  var weekStart = getWeekStart();
+  var res = await sb.from('roster_shifts').upsert(
+    {employee_id: empId, week_start: weekStart, day: day, shift_type: shiftType, updated_at: new Date().toISOString()},
+    {onConflict: 'employee_id,week_start,day'}
   );
-  if (error) { setSyncStatus('error'); notify('Save failed — check connection', true); return false; }
+  if (res.error) { setSyncStatus('error'); showToast('Save failed', true); return false; }
   roster[empId + '_' + day] = shiftType;
   setSyncStatus('ok');
   return true;
 }
 
 function render() {
-  const dates = getWeekDates();
-  const today = new Date();
+  var dates = getWeekDates();
+  var today = new Date();
   document.getElementById('weekLabel').textContent = dates[0].month + ' ' + dates[0].date + ' - ' + dates[6].month + ' ' + dates[6].date;
 
-  let legendHTML = '';
-  SHIFTS.forEach(s => {
-    let count = 0;
-    employees.forEach(e => DAYS.forEach(d => { if(getShift(e.id,d).id === s.id) count++; }));
-    legendHTML += '<div class="legend-item" style="color:' + s.color + ';background:' + s.bg + ';border-color:' + s.border + '"><div style="width:8px;height:8px;border-radius:50%;background:' + s.color + '"></div>' + s.label + ' <span style="opacity:0.6">(' + count + ')</span></div>';
+  var leg = '';
+  SHIFTS.forEach(function(s) {
+    var count = 0;
+    employees.forEach(function(e){ DAYS.forEach(function(d){ if(getShift(e.id,d).id===s.id) count++; }); });
+    leg += '<div class="legend-item" style="color:'+s.color+';background:'+s.bg+';border-color:'+s.border+'"><div style="width:8px;height:8px;border-radius:50%;background:'+s.color+'"></div>'+s.label+' <span style="opacity:0.6">('+count+')</span></div>';
   });
-  document.getElementById('legend').innerHTML = legendHTML;
+  document.getElementById('legend').innerHTML = leg;
 
-  let headHTML = '<tr><th>Employee</th>';
-  dates.forEach(d => {
-    const isToday = d.full.toDateString() === today.toDateString();
-    headHTML += '<th style="' + (isToday ? 'color:#F26522' : '') + '"><div style="font-family:Barlow Condensed,sans-serif;font-size:20px;font-weight:800;color:' + (isToday ? '#F26522' : '#E2E8F0') + '">' + d.date + '</div><div style="font-size:10px;color:#475569">' + d.day + ' ' + d.month + '</div></th>';
+  var head = '<tr><th>Employee</th>';
+  dates.forEach(function(d) {
+    var isToday = d.full.toDateString() === today.toDateString();
+    head += '<th><div style="font-family:Barlow Condensed,sans-serif;font-size:20px;font-weight:800;color:'+(isToday?'#F26522':'#E2E8F0')+'">'+d.date+'</div><div style="font-size:10px;color:#475569">'+d.day+' '+d.month+'</div></th>';
   });
-  headHTML += '<th></th></tr>';
-  document.getElementById('tableHead').innerHTML = headHTML;
+  head += '<th></th></tr>';
+  document.getElementById('tHead').innerHTML = head;
 
-  let bodyHTML = '';
+  var body = '';
   if (employees.length === 0) {
-    bodyHTML = '<tr><td colspan="9" class="loading">No employees yet — click + Add Staff to get started</td></tr>';
+    body = '<tr><td colspan="9" class="empty">No employees yet — click + Add Staff to get started</td></tr>';
   } else {
-    employees.forEach(emp => {
-      const hours = getHours(emp.id);
-      const initials = emp.name.split(' ').map(n=>n[0]).join('');
-      bodyHTML += '<tr><td><div class="emp-info"><div class="emp-avatar" style="background:' + emp.color + '">' + initials + '</div><div><div class="emp-name">' + emp.name + '</div><div class="emp-role">' + emp.role + '</div><div class="emp-hours">' + hours + 'h/wk</div></div></div></td>';
-      DAYS.forEach(day => {
-        const shift = getShift(emp.id, day);
-        bodyHTML += '<td><span class="shift-pill" id="pill_' + emp.id + '_' + day + '" style="color:' + shift.color + ';background:' + shift.bg + ';border-color:' + shift.border + '" onclick="openModal(' + emp.id + ','' + day + '')">' + shift.label + '<br><span style="font-weight:400;font-size:10px">' + shift.time + '</span></span></td>';
+    employees.forEach(function(emp) {
+      var hours = getHours(emp.id);
+      var initials = emp.name.split(' ').map(function(n){ return n[0]; }).join('');
+      body += '<tr><td><div class="emp-info"><div class="emp-avatar" style="background:'+emp.color+'">'+initials+'</div><div><div class="emp-name">'+emp.name+'</div><div class="emp-role">'+emp.role+'</div><div class="emp-hours">'+hours+'h/wk</div></div></div></td>';
+      DAYS.forEach(function(day) {
+        var shift = getShift(emp.id, day);
+        body += '<td><span class="pill" style="color:'+shift.color+';background:'+shift.bg+';border-color:'+shift.border+'" onclick="openShiftModal('+emp.id+',''+day+'')">'+shift.label+'<br><span style="font-weight:400;font-size:10px">'+shift.time+'</span></span></td>';
       });
-      bodyHTML += '<td><button class="remove-btn" onclick="removeEmp(' + emp.id + ')" title="Remove">✕</button></td></tr>';
+      body += '<td><button class="rm-btn" onclick="removeEmp('+emp.id+')">&#10005;</button></td></tr>';
     });
   }
-  document.getElementById('tableBody').innerHTML = bodyHTML;
+  document.getElementById('tBody').innerHTML = body;
 }
 
-function openModal(empId, day) {
-  selectedCell = { empId, day };
-  const emp = employees.find(e => e.id === empId);
-  document.getElementById('modalSub').textContent = emp.name + ' — ' + day;
-  let optionsHTML = '';
-  SHIFTS.forEach((s,i) => {
-    optionsHTML += '<button class="shift-option" style="background:' + s.bg + ';border-color:' + s.border + ';color:' + s.color + '" onclick="assignShift('' + s.id + '')"><div class="shift-option-label">' + s.label + '</div><div class="shift-option-time">' + s.time + '</div></button>';
+function openShiftModal(empId, day) {
+  selectedCell = {empId: empId, day: day};
+  var emp = employees.find(function(e){ return e.id === empId; });
+  document.getElementById('modalSub').textContent = emp.name + ' - ' + day;
+  var opts = '';
+  SHIFTS.forEach(function(s) {
+    opts += '<button class="shift-opt" style="background:'+s.bg+';border-color:'+s.border+';color:'+s.color+'" onclick="assignShift(''+s.id+'')"><div style="font-weight:700;font-size:14px">'+s.label+'</div><div style="font-size:12px;opacity:0.75">'+s.time+'</div></button>';
   });
-  document.getElementById('shiftOptions').innerHTML = optionsHTML;
+  document.getElementById('shiftOpts').innerHTML = opts;
   document.getElementById('shiftModal').classList.add('open');
 }
 
 async function assignShift(shiftId) {
   if (!selectedCell) return;
-  const { empId, day } = selectedCell;
-  closeModal();
-  const pill = document.getElementById('pill_' + empId + '_' + day);
-  if (pill) pill.classList.add('saving');
-  const ok = await saveShift(empId, day, shiftId);
-  if (ok) { render(); notify('Shift saved to database!'); }
+  var empId = selectedCell.empId;
+  var day = selectedCell.day;
+  closeShiftModal();
+  var ok = await saveShift(empId, day, shiftId);
+  if (ok) { render(); showToast('Shift saved!'); }
 }
 
-function closeModal() { document.getElementById('shiftModal').classList.remove('open'); selectedCell = null; }
+function closeShiftModal() { document.getElementById('shiftModal').classList.remove('open'); selectedCell = null; }
 function openAddModal() { document.getElementById('addModal').classList.add('open'); }
 function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
 
 async function addEmployee() {
-  const name = document.getElementById('newName').value.trim();
+  var name = document.getElementById('newName').value.trim();
   if (!name) return;
-  const role = document.getElementById('newRole').value;
-  const color = COLORS[employees.length % COLORS.length];
+  var role = document.getElementById('newRole').value;
+  var color = COLORS[employees.length % COLORS.length];
   setSyncStatus('saving');
-  const { data, error } = await db.from('employees').insert({ name, role, color }).select().single();
-  if (error) { setSyncStatus('error'); notify('Could not add employee', true); return; }
-  employees.push(data);
-  roster[data.id] = {};
+  var res = await sb.from('employees').insert({name: name, role: role, color: color}).select().single();
+  if (res.error) { setSyncStatus('error'); showToast('Could not add employee', true); return; }
+  employees.push(res.data);
   document.getElementById('newName').value = '';
   closeAddModal();
   setSyncStatus('ok');
   render();
-  notify(name + ' added and saved!');
+  showToast(name + ' added!');
 }
 
 async function removeEmp(id) {
   if (!confirm('Remove this employee from the roster?')) return;
   setSyncStatus('saving');
-  const { error } = await db.from('employees').delete().eq('id', id);
-  if (error) { setSyncStatus('error'); notify('Could not remove employee', true); return; }
-  employees = employees.filter(e => e.id !== id);
-  DAYS.forEach(d => delete roster[id + '_' + d]);
+  var res = await sb.from('employees').delete().eq('id', id);
+  if (res.error) { setSyncStatus('error'); showToast('Could not remove', true); return; }
+  employees = employees.filter(function(e){ return e.id !== id; });
+  DAYS.forEach(function(d){ delete roster[id + '_' + d]; });
   setSyncStatus('ok');
   render();
-  notify('Employee removed');
+  showToast('Employee removed');
 }
 
-function notify(msg, isError) {
-  const n = document.getElementById('notification');
-  n.textContent = msg;
-  n.style.background = isError ? '#EF4444' : '#22C55E';
-  n.style.display = 'block';
-  setTimeout(() => { n.style.display = 'none'; }, 2500);
-}
-
-function changeWeek(dir) { weekOffset += dir; loadData(); }
-function goToday() { weekOffset = 0; loadData(); }
-function logout() { sessionStorage.removeItem('vtm_user'); window.location.href = 'login.html'; }
+function prevWeek() { weekOffset--; loadData(); }
+function nextWeek() { weekOffset++; loadData(); }
+function thisWeek() { weekOffset = 0; loadData(); }
+function doLogout() { sessionStorage.removeItem('vtm_user'); window.location.href = 'login.html'; }
 
 loadData();
 </script>
