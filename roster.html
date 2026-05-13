@@ -391,6 +391,7 @@ function openDayModal(day) {
 }
 
 async function saveShifts() {
+  var savedDay = currentDay;
   var start = document.getElementById('startTime').value;
   var end = document.getElementById('endTime').value;
   var shiftVal = start + '-' + end;
@@ -401,13 +402,13 @@ async function saveShifts() {
   var weekStart = getWeekStart();
   var upserts = [];
   for (var i = 0; i < checked.length; i++) {
-    upserts.push({employee_id: parseInt(checked[i].value), week_start: weekStart, day: currentDay, shift_type: shiftVal, updated_at: new Date().toISOString()});
+    upserts.push({employee_id: parseInt(checked[i].value), week_start: weekStart, day: savedDay, shift_type: shiftVal, updated_at: new Date().toISOString()});
   }
   try {
     var res = await sb.from('roster_shifts').upsert(upserts, {onConflict:'employee_id,week_start,day'});
     if (res.error) { setSyncStatus('error'); showToast('Save failed: ' + res.error.message, true); return; }
     for (var i = 0; i < upserts.length; i++) {
-      roster[upserts[i].employee_id + '_' + currentDay] = shiftVal;
+      roster[upserts[i].employee_id + '_' + savedDay] = shiftVal;
     }
     setSyncStatus('ok');
     render();
@@ -416,6 +417,7 @@ async function saveShifts() {
 }
 
 async function setDayOff() {
+  var savedDay = currentDay;
   var checked = document.querySelectorAll('#workersList input[type=checkbox]:checked');
   if (checked.length === 0) { showToast('Select at least one worker', true); return; }
   closeShiftModal();
@@ -423,13 +425,13 @@ async function setDayOff() {
   var weekStart = getWeekStart();
   var upserts = [];
   for (var i = 0; i < checked.length; i++) {
-    upserts.push({employee_id: parseInt(checked[i].value), week_start: weekStart, day: currentDay, shift_type: 'off', updated_at: new Date().toISOString()});
+    upserts.push({employee_id: parseInt(checked[i].value), week_start: weekStart, day: savedDay, shift_type: 'off', updated_at: new Date().toISOString()});
   }
   try {
     var res = await sb.from('roster_shifts').upsert(upserts, {onConflict:'employee_id,week_start,day'});
     if (res.error) { setSyncStatus('error'); showToast('Error: ' + res.error.message, true); return; }
     for (var i = 0; i < upserts.length; i++) {
-      roster[upserts[i].employee_id + '_' + currentDay] = 'off';
+      roster[upserts[i].employee_id + '_' + savedDay] = 'off';
     }
     setSyncStatus('ok');
     render();
