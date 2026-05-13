@@ -342,7 +342,7 @@
     <div>
       <div class="apply-form-title">Apply Now</div>
       <div class="apply-form-sub">Fill in the form and our team will be in touch within 2 business days.</div>
-      <form class="shared-form" onsubmit="handleApply(event)">
+      <form class="shared-form" id="applyForm">
         <div class="form-row">
           <div class="form-group"><label>First Name</label><input type="text" placeholder="First name" required></div>
           <div class="form-group"><label>Last Name</label><input type="text" placeholder="Last name" required></div>
@@ -377,7 +377,7 @@
       <div class="contact-info-item"><div class="contact-icon">📍</div><div><div class="contact-label">Address</div><div class="contact-value">4/83 North Terrace<br>Bankstown NSW 2200</div></div></div>
       <div class="contact-info-item"><div class="contact-icon">⏱️</div><div><div class="contact-label">Response Time</div><div class="contact-value">Within 2 business hours.<br>Emergency? Call us directly.</div></div></div>
     </div>
-    <form class="shared-form" onsubmit="handleContact(event)">
+    <form class="shared-form" id="quoteForm">
       <div class="form-row">
         <div class="form-group"><label>First Name</label><input type="text" placeholder="First name" required></div>
         <div class="form-group"><label>Last Name</label><input type="text" placeholder="Last name" required></div>
@@ -409,8 +409,38 @@
   function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
   const obs = new IntersectionObserver((e) => { e.forEach(x => { if(x.isIntersecting) x.target.classList.add('visible'); }); }, { threshold: 0.1 });
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-  function handleApply(e) { e.preventDefault(); const b = e.target.querySelector('.form-submit'); b.textContent = '✓ Application Received!'; b.style.background = '#22C55E'; setTimeout(() => { b.textContent = 'Submit Application →'; b.style.background = ''; }, 3000); }
-  function handleContact(e) { e.preventDefault(); const b = e.target.querySelector('.form-submit'); b.textContent = '✓ Enquiry Sent!'; b.style.background = '#22C55E'; setTimeout(() => { b.textContent = 'Send Enquiry →'; b.style.background = ''; }, 3000); }
+  async function submitForm(formId, successMsg, resetMsg) {
+    var form = document.getElementById(formId);
+    var button = form.querySelector('.form-submit');
+    var data = new FormData(form);
+    button.textContent = 'Sending...';
+    button.disabled = true;
+    try {
+      var res = await fetch('https://formspree.io/f/xnjwrvgo', {
+        method: 'POST', body: data, headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        button.textContent = successMsg;
+        button.style.background = '#22C55E';
+        form.reset();
+        setTimeout(function(){ button.textContent = resetMsg; button.style.background = ''; button.disabled = false; }, 4000);
+      } else {
+        button.textContent = 'Something went wrong — try again';
+        button.style.background = '#EF4444';
+        setTimeout(function(){ button.textContent = resetMsg; button.style.background = ''; button.disabled = false; }, 3000);
+      }
+    } catch(e) {
+      button.textContent = 'Connection error — try again';
+      button.style.background = '#EF4444';
+      setTimeout(function(){ button.textContent = resetMsg; button.style.background = ''; button.disabled = false; }, 3000);
+    }
+  }
+  document.getElementById('quoteForm').addEventListener('submit', function(e) {
+    e.preventDefault(); submitForm('quoteForm', '✓ Enquiry Sent!', 'Send Enquiry →');
+  });
+  document.getElementById('applyForm').addEventListener('submit', function(e) {
+    e.preventDefault(); submitForm('applyForm', '✓ Application Received!', 'Submit Application →');
+  });
 </script>
 </body>
 </html>
