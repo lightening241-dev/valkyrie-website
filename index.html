@@ -344,20 +344,20 @@
       <div class="apply-form-sub">Fill in the form and our team will be in touch within 2 business days.</div>
       <form class="shared-form" id="applyForm">
         <div class="form-row">
-          <div class="form-group"><label>First Name</label><input type="text" placeholder="First name" required></div>
-          <div class="form-group"><label>Last Name</label><input type="text" placeholder="Last name" required></div>
+          <div class="form-group"><label>First Name</label><input type="text" name="first_name" placeholder="First name" required></div>
+          <div class="form-group"><label>Last Name</label><input type="text" name="last_name" placeholder="Last name" required></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Phone</label><input type="tel" placeholder="+61 400 000 000" required></div>
-          <div class="form-group"><label>Email</label><input type="email" placeholder="your@email.com" required></div>
+          <div class="form-group"><label>Phone</label><input type="tel" name="phone" placeholder="+61 400 000 000" required></div>
+          <div class="form-group"><label>Email</label><input type="email" name="email" placeholder="your@email.com" required></div>
         </div>
         <div class="form-group"><label>Experience Level</label>
-          <select><option>No experience — I'd like training</option><option>I have my TCWT card (Traffic Controller)</option><option>Experienced Traffic Controller (2+ years)</option><option>Team Leader / Supervisor</option><option>Other — I'll explain below</option></select>
+          <select name="experience"><option>No experience — I'd like training</option><option>I have my TCWT card (Traffic Controller)</option><option>Experienced Traffic Controller (2+ years)</option><option>Team Leader / Supervisor</option><option>Other — I'll explain below</option></select>
         </div>
         <div class="form-group"><label>Availability</label>
-          <select><option>Full time</option><option>Part time</option><option>Casual / as needed</option><option>Weekends only</option></select>
+          <select name="availability"><option>Full time</option><option>Part time</option><option>Casual / as needed</option><option>Weekends only</option></select>
         </div>
-        <div class="form-group"><label>Tell Us About Yourself</label><textarea placeholder="Any relevant experience, why you want to join, or questions about training..."></textarea></div>
+        <div class="form-group"><label>Tell Us About Yourself</label><textarea name="message" placeholder="Any relevant experience, why you want to join, or questions about training..."></textarea></div>
         <button type="submit" class="form-submit">Submit Application →</button>
       </form>
     </div>
@@ -379,17 +379,17 @@
     </div>
     <form class="shared-form" id="quoteForm">
       <div class="form-row">
-        <div class="form-group"><label>First Name</label><input type="text" placeholder="First name" required></div>
-        <div class="form-group"><label>Last Name</label><input type="text" placeholder="Last name" required></div>
+        <div class="form-group"><label>First Name</label><input type="text" name="first_name" placeholder="First name" required></div>
+        <div class="form-group"><label>Last Name</label><input type="text" name="last_name" placeholder="Last name" required></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Phone</label><input type="tel" placeholder="+61 400 000 000" required></div>
-        <div class="form-group"><label>Email</label><input type="email" placeholder="you@company.com.au" required></div>
+        <div class="form-group"><label>Phone</label><input type="tel" name="phone" placeholder="+61 400 000 000" required></div>
+        <div class="form-group"><label>Email</label><input type="email" name="email" placeholder="you@company.com.au" required></div>
       </div>
       <div class="form-group"><label>Service Required</label>
-        <select><option>Traffic Management Planning</option><option>Traffic Controllers (Construction)</option><option>Event Traffic Management</option><option>Council / Authority Liaison</option><option>Emergency / Short Notice</option><option>Other</option></select>
+        <select name="service"><option>Traffic Management Planning</option><option>Traffic Controllers (Construction)</option><option>Event Traffic Management</option><option>Council / Authority Liaison</option><option>Emergency / Short Notice</option><option>Other</option></select>
       </div>
-      <div class="form-group"><label>Project Details</label><textarea placeholder="Location, dates, scope of works..."></textarea></div>
+      <div class="form-group"><label>Project Details</label><textarea name="message" placeholder="Location, dates, scope of works..."></textarea></div>
       <button type="submit" class="form-submit">Send Enquiry →</button>
     </form>
   </div>
