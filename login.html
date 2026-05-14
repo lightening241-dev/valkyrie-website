@@ -55,11 +55,33 @@
   <div class="back-link"><a href="index.html">← Back to website</a></div>
 </div>
 
+<!-- Set Password Overlay (shown on first login / after reset) -->
+<div id="setPwOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.93);z-index:200;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#1A1A1A;border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:40px;width:100%;max-width:420px;">
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#F26522;margin-bottom:10px;">First Login</div>
+      <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;text-transform:uppercase;margin-bottom:8px;">Set Your Password</h2>
+      <p style="font-size:14px;color:rgba(255,255,255,0.4);">Please create a new password to continue.</p>
+    </div>
+    <div id="setPwError" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#EF4444;padding:12px 16px;border-radius:3px;font-size:13px;margin-bottom:18px;display:none;"></div>
+    <div class="form-group">
+      <label>New Password</label>
+      <input type="password" id="newPwInput" placeholder="Choose a password (min. 6 characters)">
+    </div>
+    <div class="form-group">
+      <label>Confirm Password</label>
+      <input type="password" id="confirmPwInput" placeholder="Re-enter your password" onkeydown="if(event.key==='Enter')submitNewPassword()">
+    </div>
+    <button class="btn-login" onclick="submitNewPassword()">Set Password & Continue →</button>
+  </div>
+</div>
+
 <script>
 var SURL = 'https://sapvbnvxsuelnossjfee.supabase.co';
 var SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNhcHZibnZ4c3VlbG5vc3NqZmVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MjU0NTQsImV4cCI6MjA5NDIwMTQ1NH0.iPSbdvCYV8oKaVY1MQy5fSKsZLHXPsTx-xGKT3VIaK0';
 
 var ADMIN_CREDS = { username: 'admin', password: 'VTM@admin2024', name: 'Admin', role: 'admin' };
+var pendingEmp = null;
 
 async function login() {
   const username = document.getElementById('username').value.trim().toLowerCase();
@@ -77,9 +99,14 @@ async function login() {
   // Staff check via Supabase
   try {
     var sb = supabase.createClient(SURL, SKEY);
-    var res = await sb.from('employees').select('id,name,role,username,password').eq('username', username).single();
+    var res = await sb.from('employees').select('id,name,role,username,password,must_change_password').eq('username', username).single();
     if (!res.error && res.data && res.data.password === password) {
       errorMsg.style.display = 'none';
+      if (res.data.must_change_password) {
+        pendingEmp = res.data;
+        document.getElementById('setPwOverlay').style.display = 'flex';
+        return;
+      }
       sessionStorage.setItem('vtm_user', JSON.stringify({ username, name: res.data.name, role: 'employee', id: res.data.id }));
       window.location.href = 'my-shifts.html';
       return;
@@ -88,6 +115,34 @@ async function login() {
 
   errorMsg.style.display = 'block';
   document.getElementById('password').value = '';
+}
+
+async function submitNewPassword() {
+  var newPw = document.getElementById('newPwInput').value;
+  var confirmPw = document.getElementById('confirmPwInput').value;
+  var errEl = document.getElementById('setPwError');
+  errEl.style.display = 'none';
+  if (newPw.length < 6) {
+    errEl.textContent = 'Password must be at least 6 characters.';
+    errEl.style.display = 'block'; return;
+  }
+  if (newPw !== confirmPw) {
+    errEl.textContent = 'Passwords do not match.';
+    errEl.style.display = 'block'; return;
+  }
+  try {
+    var sb2 = supabase.createClient(SURL, SKEY);
+    var res = await sb2.from('employees').update({ password: newPw, must_change_password: false }).eq('id', pendingEmp.id);
+    if (res.error) {
+      errEl.textContent = 'Could not save password: ' + res.error.message;
+      errEl.style.display = 'block'; return;
+    }
+    sessionStorage.setItem('vtm_user', JSON.stringify({ username: pendingEmp.username, name: pendingEmp.name, role: 'employee', id: pendingEmp.id }));
+    window.location.href = 'my-shifts.html';
+  } catch(e) {
+    errEl.textContent = 'Error: ' + e.message;
+    errEl.style.display = 'block';
+  }
 }
 </script>
 </body>

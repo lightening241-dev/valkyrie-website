@@ -188,9 +188,15 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 24px
 <div class="modal-bg" id="loginsModal" onclick="closeLoginsModal()">
   <div class="modal" onclick="event.stopPropagation()" style="max-width:520px">
     <h3>Staff Login Credentials</h3>
-    <div class="modal-sub">All active staff accounts — keep this confidential</div>
-    <div id="loginsList"></div>
-    <button onclick="closeLoginsModal()" style="width:100%;padding:11px;background:#334155;color:#94A3B8;border:none;border-radius:6px;cursor:pointer;font-family:Barlow,sans-serif;font-weight:600;font-size:14px;margin-top:4px">Close</button>
+    <div class="modal-sub">Usernames for all active staff accounts</div>
+    <div id="resetResult" style="display:none;background:rgba(239,68,68,0.06);border:1.5px solid rgba(239,68,68,0.3);border-radius:8px;padding:14px 16px;margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:700;color:#EF4444;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px;">Password Reset — share with <span id="resetEmpName"></span></div>
+      <div style="font-size:12px;color:#64748B;margin-bottom:4px;">Username: <span id="resetUsername" style="font-family:monospace;color:#E2E8F0;"></span></div>
+      <div style="font-size:12px;color:#64748B;margin-bottom:8px;">Temp Password: <span id="resetTempPw" style="font-family:monospace;color:#F26522;font-size:15px;font-weight:700;"></span></div>
+      <div style="font-size:11px;color:#475569;">They will be prompted to set a new password on next login.</div>
+    </div>
+    <div id="loginsList" style="max-height:55vh;overflow-y:auto;"></div>
+    <button onclick="closeLoginsModal()" style="width:100%;padding:11px;background:#334155;color:#94A3B8;border:none;border-radius:6px;cursor:pointer;font-family:Barlow,sans-serif;font-weight:600;font-size:14px;margin-top:12px">Close</button>
   </div>
 </div>
 
@@ -198,17 +204,16 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 24px
 <div class="modal-bg" id="credsModal">
   <div class="modal" onclick="event.stopPropagation()" style="max-width:380px">
     <h3>Account Created</h3>
-    <div class="modal-sub">Share these login credentials with the staff member</div>
-    <div class="detail-box" style="margin-bottom:12px">
-      <div class="detail-label">Username</div>
-      <div class="detail-val" id="credsUsername" style="font-family:monospace;font-size:17px;color:#F26522;margin-top:4px"></div>
-    </div>
+    <div class="modal-sub">Share the username — staff will set their own password on first login</div>
     <div class="detail-box" style="margin-bottom:16px">
-      <div class="detail-label">Temporary Password</div>
-      <div class="detail-val" id="credsPassword" style="font-family:monospace;font-size:17px;color:#F26522;margin-top:4px"></div>
+      <div class="detail-label">Username</div>
+      <div class="detail-val" id="credsUsername" style="font-family:monospace;font-size:20px;color:#F26522;margin-top:6px;letter-spacing:0.02em"></div>
     </div>
-    <p style="font-size:12px;color:#64748B;margin-bottom:16px">Staff can use these credentials to sign in at the Staff Portal.</p>
-    <button onclick="closeCredsModal()" style="width:100%;padding:11px;background:#F26522;color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:Barlow,sans-serif;font-weight:700;font-size:14px">Done</button>
+    <p style="font-size:12px;color:#64748B;margin-bottom:16px">When they first sign in they will be prompted to set their own password.</p>
+    <div style="display:flex;gap:10px">
+      <button onclick="copyCredsUsername()" style="flex:1;padding:11px;background:rgba(242,101,34,0.1);color:#F26522;border:1px solid rgba(242,101,34,0.3);border-radius:6px;cursor:pointer;font-family:Barlow,sans-serif;font-weight:700;font-size:13px">Copy Username</button>
+      <button onclick="closeCredsModal()" style="flex:1;padding:11px;background:#F26522;color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:Barlow,sans-serif;font-weight:700;font-size:13px">Done</button>
+    </div>
   </div>
 </div>
 
@@ -581,6 +586,14 @@ async function uploadAttachment(){
 }
 
 // ── Staff ────────────────────────────────────────────────
+async function getUniqueUsername(base){
+  var res=await sb.from('employees').select('username');
+  var existing=(res.data||[]).map(function(e){return e.username;});
+  if(existing.indexOf(base)===-1) return base;
+  var n=2;
+  while(existing.indexOf(base+n)!==-1) n++;
+  return base+n;
+}
 async function addEmployee(){
   var name=document.getElementById('newName').value.trim();
   if(!name){showToast('Please enter a name',true);return;}
@@ -588,17 +601,17 @@ async function addEmployee(){
   var role=document.getElementById('newRole').value;
   var email=document.getElementById('newEmail').value.trim();
   var color=COLORS[employees.length%COLORS.length];
-  var username=name.toLowerCase().replace(/\s+/g,'.');
-  var password='Vtm'+Math.floor(1000+Math.random()*9000);
+  var baseUsername=name.toLowerCase().replace(/\s+/g,'.');
   setSyncStatus('saving');
   try{
-    var res=await sb.from('employees').insert({name:name,role:role,color:color,email:email||null,phone:phone||null,username:username,password:password}).select().single();
+    var username=await getUniqueUsername(baseUsername);
+    var tempPw='Vtm'+Math.floor(1000+Math.random()*9000);
+    var res=await sb.from('employees').insert({name:name,role:role,color:color,email:email||null,phone:phone||null,username:username,password:tempPw,must_change_password:true}).select().single();
     if(res.error){setSyncStatus('error');showToast('Error: '+res.error.message,true);return;}
     employees.push(res.data);
     document.getElementById('newName').value='';document.getElementById('newPhone').value='';document.getElementById('newEmail').value='';
     closeAddModal();setSyncStatus('ok');renderGrid();
     document.getElementById('credsUsername').textContent=username;
-    document.getElementById('credsPassword').textContent=password;
     document.getElementById('credsModal').classList.add('open');
   }catch(e){setSyncStatus('error');showToast('Error: '+e.message,true);}
 }
@@ -635,23 +648,23 @@ function doLogout(){sessionStorage.removeItem('vtm_user');window.location.href='
 
 // ── Staff logins ──────────────────────────────────────────
 function openLoginsModal(){
+  document.getElementById('resetResult').style.display='none';
   var html='';
   if(employees.length===0){
     html='<div style="text-align:center;padding:30px;color:#475569">No staff accounts yet.</div>';
   } else {
-    html='<div style="display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto;">';
+    html='<div style="display:flex;flex-direction:column;gap:8px;">';
     for(var i=0;i<employees.length;i++){
       var emp=employees[i];
       var init=emp.name.split(' ').map(function(n){return n[0]||'';}).join('');
-      html+='<div style="background:#0F172A;border:1px solid #1E293B;border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;">';
-      html+='<div class="emp-av" style="background:'+emp.color+';width:32px;height:32px;font-size:12px;flex-shrink:0;">'+init+'</div>';
+      var needsChange=emp.must_change_password?'<span style="font-size:9px;font-weight:700;color:#F59E0B;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);padding:2px 7px;border-radius:10px;margin-left:6px;">Must set password</span>':'';
+      html+='<div style="background:#0F172A;border:1px solid #1E293B;border-radius:8px;padding:11px 14px;display:flex;align-items:center;gap:12px;">';
+      html+='<div class="emp-av" style="background:'+emp.color+';width:30px;height:30px;font-size:11px;flex-shrink:0;">'+init+'</div>';
       html+='<div style="flex:1;min-width:0;">';
-      html+='<div style="font-size:13px;font-weight:600;margin-bottom:4px;">'+emp.name+'</div>';
-      html+='<div style="display:flex;gap:8px;flex-wrap:wrap;">';
-      html+='<span style="font-size:11px;color:#64748B;">Username: <span style="font-family:monospace;color:#F26522;font-size:12px;">'+( emp.username||'—')+'</span></span>';
-      html+='<span style="font-size:11px;color:#64748B;">Password: <span style="font-family:monospace;color:#E2E8F0;font-size:12px;">'+( emp.password||'—')+'</span></span>';
-      html+='</div></div>';
-      html+='<button onclick="copyCredentials(\''+emp.username+'\',\''+emp.password+'\')" style="background:rgba(242,101,34,0.1);border:1px solid rgba(242,101,34,0.3);color:#F26522;border-radius:5px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:700;white-space:nowrap;">Copy</button>';
+      html+='<div style="font-size:13px;font-weight:600;margin-bottom:3px;">'+emp.name+needsChange+'</div>';
+      html+='<div style="font-size:11px;color:#64748B;">Username: <span style="font-family:monospace;color:#F26522;">'+( emp.username||'—')+'</span></div>';
+      html+='</div>';
+      html+='<button onclick="resetPassword('+emp.id+',\''+emp.name.replace(/'/g,"\\'")+'\')" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#EF4444;border-radius:5px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;">Reset Password</button>';
       html+='</div>';
     }
     html+='</div>';
@@ -660,9 +673,30 @@ function openLoginsModal(){
   document.getElementById('loginsModal').classList.add('open');
 }
 function closeLoginsModal(){document.getElementById('loginsModal').classList.remove('open');}
-function copyCredentials(username,password){
-  var text='Username: '+username+'\nPassword: '+password;
-  navigator.clipboard.writeText(text).then(function(){showToast('Credentials copied!');}).catch(function(){showToast('Copy failed — select manually',true);});
+
+async function resetPassword(empId,empName){
+  if(!confirm('Reset password for '+empName+'?\nA temporary password will be shown to you — they must change it on next login.'))return;
+  var tempPw='Vtm'+Math.floor(1000+Math.random()*9000);
+  setSyncStatus('saving');
+  try{
+    var res=await sb.from('employees').update({password:tempPw,must_change_password:true}).eq('id',empId);
+    if(res.error){setSyncStatus('error');showToast('Reset failed: '+res.error.message,true);return;}
+    var emp=employees.find(function(e){return e.id===empId;});
+    if(emp){emp.password=tempPw;emp.must_change_password=true;}
+    setSyncStatus('ok');
+    var box=document.getElementById('resetResult');
+    document.getElementById('resetEmpName').textContent=empName;
+    document.getElementById('resetUsername').textContent=emp?emp.username:'—';
+    document.getElementById('resetTempPw').textContent=tempPw;
+    box.style.display='block';
+    box.scrollIntoView({behavior:'smooth',block:'nearest'});
+    openLoginsModal();
+    document.getElementById('resetResult').style.display='block';
+  }catch(e){setSyncStatus('error');showToast('Error: '+e.message,true);}
+}
+function copyCredsUsername(){
+  var u=document.getElementById('credsUsername').textContent;
+  navigator.clipboard.writeText(u).then(function(){showToast('Username copied!');}).catch(function(){showToast('Copy failed',true);});
 }
 
 // ── Load ─────────────────────────────────────────────────
