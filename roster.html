@@ -56,6 +56,11 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
 .s-accepted { color:#22C55E; background:rgba(34,197,94,0.1); border-color:rgba(34,197,94,0.4); }
 .s-declined { color:#EF4444; background:rgba(239,68,68,0.1); border-color:rgba(239,68,68,0.4); }
 .s-cancelled { color:#9CA3AF; background:rgba(156,163,175,0.06); border-color:rgba(156,163,175,0.25); }
+.shift-cell.drag-sel { outline:2px solid #F26522; outline-offset:-1px; filter:brightness(1.3); position:relative; z-index:1; }
+.cell-notes-icon { font-size:9px; display:block; margin-top:2px; opacity:0.8; }
+.file-drop-label { display:flex; align-items:center; gap:8px; padding:11px 14px; border:1.5px dashed #334155; border-radius:6px; cursor:pointer; color:#64748B; font-size:13px; transition:all 0.2s; }
+.file-drop-label:hover { border-color:#F26522; color:#F26522; }
+.file-attached-row { display:flex; align-items:center; gap:10px; padding:10px 14px; background:rgba(34,197,94,0.08); border:1.5px solid rgba(34,197,94,0.3); border-radius:6px; }
 .rm-btn { background:none; border:none; color:#475569; cursor:pointer; font-size:15px; padding:2px 6px; transition:color 0.2s; }
 .rm-btn:hover { color:#EF4444; }
 .empty { text-align:center; padding:60px; color:#64748B; font-size:15px; }
@@ -115,6 +120,23 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
     <div class="dur" id="durationDisplay">Duration: —</div>
     <div class="wlabel">Apply to workers</div>
     <div class="wlist" id="workersList"></div>
+    <div class="divider"></div>
+    <div class="fg" style="margin-bottom:12px">
+      <span class="tlabel">Shift Notes (visible to workers)</span>
+      <textarea class="tsel" id="shiftNotes" rows="3" style="min-height:70px;resize:vertical;margin-top:6px" placeholder="e.g. Bring high-vis vest. Meet at depot gate A."></textarea>
+    </div>
+    <div class="fg" style="margin-bottom:14px">
+      <span class="tlabel">Attachment</span>
+      <div style="margin-top:6px">
+        <label for="attachInput" class="file-drop-label" id="attachLabel">📎 Attach file for workers to view</label>
+        <input type="file" id="attachInput" style="display:none" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" onchange="handleAttach(this)">
+        <div id="attachPreview" style="display:none" class="file-attached-row">
+          <span style="font-size:16px">📄</span>
+          <span style="flex:1;font-size:13px;color:#22C55E;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="attachDisplayName"></span>
+          <button onclick="clearAttach()" style="background:none;border:none;color:#EF4444;cursor:pointer;font-size:18px;line-height:1;padding:0 4px">×</button>
+        </div>
+      </div>
+    </div>
     <div class="divider"></div>
     <div class="mactions">
       <button class="mbtn-cancel" onclick="closeShiftModal()">Cancel</button>
@@ -219,9 +241,9 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
 </div>
 
 <script>
-var SURL = 'https://sapvbnvxsuelnossjfee.supabase.co';
-var SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNhcHZibnZ4c3VlbG5vc3NqZmVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MjU0NTQsImV4cCI6MjA5NDIwMTQ1NH0.iPSbdvCYV8oKaVY1MQy5fSKsZLHXPsTx-xGKT3VIaK0';
-var sb = supabase.createClient(SURL, SKEY);
+var SURL='https://sapvbnvxsuelnossjfee.supabase.co';
+var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNhcHZibnZ4c3VlbG5vc3NqZmVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MjU0NTQsImV4cCI6MjA5NDIwMTQ1NH0.iPSbdvCYV8oKaVY1MQy5fSKsZLHXPsTx-xGKT3VIaK0';
+var sb=supabase.createClient(SURL,SKEY);
 
 // EmailJS config — fill in after EmailJS setup
 var EJS_PUBLIC_KEY = 'nMUGEEgvVgFt5AccJ';
@@ -234,11 +256,17 @@ var EMAIL_ENABLED = true;
 var DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 var COLORS = ['#EF4444','#F97316','#EAB308','#22C55E','#14B8A6','#3B82F6','#8B5CF6','#EC4899','#F26522','#06B6D4'];
 
-var weekOffset = 0;
-var currentDay = null;
-var detailCell = null;
-var employees = [];
-var roster = {};
+var weekOffset=0;
+var currentDay=null;
+var detailCell=null;
+var employees=[];
+var roster={};
+var selectedDays=[];
+var attachFile=null;
+var savedAttachUrl=null;
+var savedAttachName=null;
+var dragActive=false;
+var dragCells=[];
 
 var TIME_OPTIONS = [];
 for (var h = 0; h < 24; h++) {
@@ -349,15 +377,18 @@ function render() {
       body+='<tr><td><div class="emp-info"><div class="emp-avatar" style="background:'+emp.color+'">'+init+'</div><div><div class="emp-name">'+emp.name+'</div><div class="emp-role">'+emp.role+'</div><div class="emp-hours">'+hrs+'h/wk</div></div></div></td>';
       for (var di=0;di<DAYS.length;di++) {
         var day=DAYS[di], key=emp.id+'_'+day, d=roster[key];
+        var cellAttrs=' data-emp="'+emp.id+'" data-day="'+day+'" onmousedown="cellMouseDown(event,'+emp.id+',\''+day+'\')" onmouseenter="cellMouseEnter('+emp.id+',\''+day+'\')"';
         if (!d||!d.shift_type||d.shift_type==='off') {
-          body+='<td><span class="shift-cell s-off" onclick="openEmpModal('+emp.id+',\''+day+'\')"><span class="cell-time">Day Off</span></span></td>';
+          body+='<td><span class="shift-cell s-off"'+cellAttrs+'><span class="cell-time" style="color:#334155">—</span></span></td>';
         } else {
           var st=d.status||'pending', sc=statusClass(st), sl=statusLabel(st);
           var reason=d.cancel_reason?d.cancel_reason:(d.decline_reason?d.decline_reason:'');
-          body+='<td><span class="shift-cell '+sc+'" onclick="cellClick('+emp.id+',\''+day+'\')">';
+          body+='<td><span class="shift-cell '+sc+'"'+cellAttrs+'>';
           body+='<span class="cell-time">'+d.shift_type+'</span>';
           body+='<span class="cell-status">'+sl+'</span>';
           if (reason) body+='<span class="cell-reason">'+reason+'</span>';
+          if (d.notes) body+='<span class="cell-notes-icon">📝 notes</span>';
+          if (d.attachment_url) body+='<span class="cell-notes-icon">📎 file</span>';
           body+='</span></td>';
         }
       }
@@ -367,12 +398,84 @@ function render() {
   document.getElementById('tBody').innerHTML=body;
 }
 
-function cellClick(empId, day) {
-  var key=empId+'_'+day, d=roster[key];
-  if (!d||!d.shift_type||d.shift_type==='off') { openEmpModal(empId,day); return; }
-  var st=d.status||'pending';
-  if (st==='pending'||st==='accepted') { openEmpModal(empId,day); }
-  else { showDetail(empId,day); }
+function cellMouseDown(event, empId, day) {
+  if (event.button!==0) return;
+  event.preventDefault();
+  dragActive=true;
+  dragCells=[{empId:empId,day:day}];
+  document.body.style.userSelect='none';
+  var el=event.currentTarget;
+  if (el) el.classList.add('drag-sel');
+}
+
+function cellMouseEnter(empId, day) {
+  if (!dragActive) return;
+  var already=dragCells.some(function(c){return c.empId===empId&&c.day===day;});
+  if (!already) {
+    dragCells.push({empId:empId,day:day});
+    var el=document.querySelector('[data-emp="'+empId+'"][data-day="'+day+'"]');
+    if (el) el.classList.add('drag-sel');
+  }
+}
+
+document.addEventListener('mouseup',function(){
+  if (!dragActive) return;
+  dragActive=false;
+  document.body.style.userSelect='';
+  document.querySelectorAll('.shift-cell.drag-sel').forEach(function(el){el.classList.remove('drag-sel');});
+  if (dragCells.length===1) {
+    var c=dragCells[0]; dragCells=[];
+    var d=roster[c.empId+'_'+c.day];
+    if (!d||!d.shift_type||d.shift_type==='off') { openEmpModal(c.empId,c.day); }
+    else { var st=d.status||'pending'; if(st==='pending'||st==='accepted'){openEmpModal(c.empId,c.day);}else{showDetail(c.empId,c.day);} }
+  } else if (dragCells.length>1) {
+    openDragModal();
+  } else { dragCells=[]; }
+});
+
+function openDragModal() {
+  var empIds=dragCells.map(function(c){return c.empId;}).filter(function(v,i,a){return a.indexOf(v)===i;});
+  selectedDays=dragCells.map(function(c){return c.day;}).filter(function(v,i,a){return a.indexOf(v)===i;});
+  dragCells=[];
+  currentDay=selectedDays[0];
+  document.getElementById('modalSub').textContent='Assign shift — '+(selectedDays.length===1?selectedDays[0]:selectedDays.join(', '));
+  buildTimeSelects(); updateDuration();
+  document.getElementById('shiftNotes').value='';
+  clearAttach();
+  var wlist=document.getElementById('workersList'); wlist.innerHTML='';
+  for (var i=0;i<employees.length;i++) {
+    var e=employees[i], chk=empIds.indexOf(e.id)!==-1?'checked':'';
+    var cur=roster[e.id+'_'+selectedDays[0]], cl='s-off', lbl='Off';
+    if (cur&&cur.shift_type&&cur.shift_type!=='off'){cl=statusClass(cur.status||'pending');lbl=cur.shift_type;}
+    var init=e.name.split(' ').map(function(n){return n[0];}).join('');
+    wlist.innerHTML+='<label class="wcheck"><input type="checkbox" value="'+e.id+'" '+chk+'><div class="wav" style="background:'+e.color+'">'+init+'</div><div class="wname">'+e.name+'</div><span class="wsbadge '+cl+'">'+lbl+'</span></label>';
+  }
+  document.getElementById('shiftModal').classList.add('open');
+}
+
+function handleAttach(input) {
+  var file=input.files[0]; if (!file) return;
+  attachFile=file; savedAttachUrl=null; savedAttachName=null;
+  document.getElementById('attachDisplayName').textContent=file.name;
+  document.getElementById('attachLabel').style.display='none';
+  document.getElementById('attachPreview').style.display='flex';
+}
+
+function clearAttach() {
+  attachFile=null; savedAttachUrl=null; savedAttachName=null;
+  var inp=document.getElementById('attachInput'); if(inp) inp.value='';
+  var lbl=document.getElementById('attachLabel'); var prv=document.getElementById('attachPreview');
+  if(lbl) lbl.style.display='flex';
+  if(prv) prv.style.display='none';
+}
+
+async function uploadAttachment() {
+  if (!attachFile) return null;
+  var safeName=Date.now()+'_'+attachFile.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+  var res=await sb.storage.from('shift-attachments').upload(safeName,attachFile,{upsert:true});
+  if (res.error){showToast('Upload failed: '+res.error.message,true);return null;}
+  var pub=sb.storage.from('shift-attachments').getPublicUrl(safeName);
+  return {url:pub.data.publicUrl,name:attachFile.name};
 }
 
 function showDetail(empId, day) {
@@ -385,6 +488,8 @@ function showDetail(empId, day) {
   html+='<div class="detail-box"><div class="detail-label">Shift Time</div><div class="detail-val">'+d.shift_type+'</div></div>';
   if (d.decline_reason) html+='<div class="detail-box"><div class="detail-label">Declined — No reason provided</div></div>';
   if (d.cancel_reason) html+='<div class="detail-box"><div class="detail-label">Cancellation Reason</div><div class="detail-val">'+d.cancel_reason+'</div></div>';
+  if (d.notes) html+='<div class="detail-box"><div class="detail-label">Shift Notes</div><div class="detail-val" style="font-size:13px;color:#94A3B8;line-height:1.5">'+d.notes+'</div></div>';
+  if (d.attachment_url) html+='<div class="detail-box"><div class="detail-label">Attachment</div><a href="'+d.attachment_url+'" target="_blank" style="color:#F26522;font-size:14px;text-decoration:none;display:inline-block;margin-top:4px">📎 '+(d.attachment_name||'View file')+'</a></div>';
   document.getElementById('detailContent').innerHTML=html;
   document.getElementById('detailModal').classList.add('open');
 }
@@ -397,7 +502,7 @@ function reassignFromDetail() {
 function closeDetailModal() { document.getElementById('detailModal').classList.remove('open'); detailCell=null; }
 
 function openEmpModal(empId, day) {
-  currentDay=day;
+  selectedDays=[day]; currentDay=day;
   var emp=employees.find(function(e){return e.id===empId;});
   document.getElementById('modalSub').textContent=(emp?emp.name:'')+' — '+day;
   buildTimeSelects();
@@ -407,6 +512,14 @@ function openEmpModal(empId, day) {
     if (pts.length===2){document.getElementById('startTime').value=pts[0];document.getElementById('endTime').value=pts[1];}
   }
   updateDuration();
+  document.getElementById('shiftNotes').value=existing&&existing.notes?existing.notes:'';
+  clearAttach();
+  if (existing&&existing.attachment_url) {
+    savedAttachUrl=existing.attachment_url; savedAttachName=existing.attachment_name||'File';
+    document.getElementById('attachDisplayName').textContent=(existing.attachment_name||'Existing file');
+    document.getElementById('attachLabel').style.display='none';
+    document.getElementById('attachPreview').style.display='flex';
+  }
   var wlist=document.getElementById('workersList'); wlist.innerHTML='';
   for (var i=0;i<employees.length;i++) {
     var e=employees[i], chk=e.id===empId?'checked':'';
@@ -419,9 +532,11 @@ function openEmpModal(empId, day) {
 }
 
 function openDayModal(day) {
-  currentDay=day;
+  selectedDays=[day]; currentDay=day;
   document.getElementById('modalSub').textContent='Bulk Assign — '+day+' (all workers selected)';
   buildTimeSelects(); updateDuration();
+  document.getElementById('shiftNotes').value='';
+  clearAttach();
   var wlist=document.getElementById('workersList'); wlist.innerHTML='';
   for (var i=0;i<employees.length;i++) {
     var e=employees[i], cur=roster[e.id+'_'+day];
@@ -434,62 +549,66 @@ function openDayModal(day) {
 }
 
 async function saveShifts() {
-  var savedDay=currentDay;
   var start=document.getElementById('startTime').value;
   var end=document.getElementById('endTime').value;
   var shiftVal=start+'-'+end;
+  var notes=document.getElementById('shiftNotes').value.trim();
   var checked=document.querySelectorAll('#workersList input[type=checkbox]:checked');
   if (checked.length===0){showToast('Select at least one worker',true);return;}
+  var daysToSave=selectedDays.length>0?selectedDays:(currentDay?[currentDay]:[]);
+  if (daysToSave.length===0){showToast('No day selected',true);return;}
   closeShiftModal();
   setSyncStatus('saving');
-  var weekStart=getWeekStart();
-  var upserts=[];
-  for (var i=0;i<checked.length;i++) {
-    upserts.push({employee_id:parseInt(checked[i].value),week_start:weekStart,day:savedDay,shift_type:shiftVal,status:'pending',decline_reason:null,cancel_reason:null,updated_at:new Date().toISOString()});
+  var attachUrl=savedAttachUrl||null, attachName=savedAttachName||null;
+  if (attachFile) { var att=await uploadAttachment(); if(att){attachUrl=att.url;attachName=att.name;} }
+  var weekStart=getWeekStart(), upserts=[];
+  for (var ci=0;ci<checked.length;ci++) {
+    for (var di=0;di<daysToSave.length;di++) {
+      upserts.push({employee_id:parseInt(checked[ci].value),week_start:weekStart,day:daysToSave[di],shift_type:shiftVal,status:'pending',decline_reason:null,cancel_reason:null,notes:notes||null,attachment_url:attachUrl,attachment_name:attachName,updated_at:new Date().toISOString()});
+    }
   }
   try {
     var res=await sb.from('roster_shifts').upsert(upserts,{onConflict:'employee_id,week_start,day'});
     if (res.error){setSyncStatus('error');showToast('Save failed: '+res.error.message,true);return;}
     for (var i=0;i<upserts.length;i++) {
-      roster[upserts[i].employee_id+'_'+savedDay]={shift_type:shiftVal,status:'pending',decline_reason:null,cancel_reason:null};
-      // Send email to worker
+      roster[upserts[i].employee_id+'_'+upserts[i].day]={shift_type:shiftVal,status:'pending',decline_reason:null,cancel_reason:null,notes:notes||null,attachment_url:attachUrl,attachment_name:attachName};
       if (EMAIL_ENABLED) {
         var emp=employees.find(function(e){return e.id===upserts[i].employee_id;});
         if (emp&&emp.email) {
-          emailjs.send(EJS_SERVICE_ID,EJS_TEMPLATE_WORKER,{
-            to_email:emp.email, to_name:emp.name, shift_day:savedDay,
-            shift_time:shiftVal, week_start:weekStart
-          });
+          emailjs.send(EJS_SERVICE_ID,EJS_TEMPLATE_WORKER,{to_email:emp.email,to_name:emp.name,shift_day:upserts[i].day,shift_time:shiftVal,week_start:weekStart});
         }
       }
     }
     setSyncStatus('ok'); render();
-    showToast('Saved '+checked.length+' shift'+(checked.length>1?'s':'')+' — workers notified!');
+    var total=checked.length*daysToSave.length;
+    showToast('Saved '+total+' shift'+(total!==1?'s':'')+' — workers notified!');
   } catch(e){setSyncStatus('error');showToast('Error: '+e.message,true);}
 }
 
 async function setDayOff() {
-  var savedDay=currentDay;
   var checked=document.querySelectorAll('#workersList input[type=checkbox]:checked');
   if (checked.length===0){showToast('Select at least one worker',true);return;}
+  var daysToSave=selectedDays.length>0?selectedDays:(currentDay?[currentDay]:[]);
   closeShiftModal();
   setSyncStatus('saving');
   var weekStart=getWeekStart(), upserts=[];
-  for (var i=0;i<checked.length;i++) {
-    upserts.push({employee_id:parseInt(checked[i].value),week_start:weekStart,day:savedDay,shift_type:'off',status:'off',decline_reason:null,cancel_reason:null,updated_at:new Date().toISOString()});
+  for (var ci=0;ci<checked.length;ci++) {
+    for (var di=0;di<daysToSave.length;di++) {
+      upserts.push({employee_id:parseInt(checked[ci].value),week_start:weekStart,day:daysToSave[di],shift_type:'off',status:'off',decline_reason:null,cancel_reason:null,notes:null,attachment_url:null,attachment_name:null,updated_at:new Date().toISOString()});
+    }
   }
   try {
     var res=await sb.from('roster_shifts').upsert(upserts,{onConflict:'employee_id,week_start,day'});
     if (res.error){setSyncStatus('error');showToast('Error: '+res.error.message,true);return;}
     for (var i=0;i<upserts.length;i++) {
-      roster[upserts[i].employee_id+'_'+savedDay]={shift_type:'off',status:'off',decline_reason:null,cancel_reason:null};
+      roster[upserts[i].employee_id+'_'+upserts[i].day]={shift_type:'off',status:'off',decline_reason:null,cancel_reason:null,notes:null,attachment_url:null,attachment_name:null};
     }
     setSyncStatus('ok'); render();
-    showToast('Day off set for '+checked.length+' worker'+(checked.length>1?'s':'')+'!');
+    showToast('Day off set!');
   } catch(e){setSyncStatus('error');showToast('Error: '+e.message,true);}
 }
 
-function closeShiftModal(){document.getElementById('shiftModal').classList.remove('open');currentDay=null;}
+function closeShiftModal(){document.getElementById('shiftModal').classList.remove('open');currentDay=null;selectedDays=[];clearAttach();}
 function openAddModal(){document.getElementById('addModal').classList.add('open');}
 function closeAddModal(){document.getElementById('addModal').classList.remove('open');}
 function closeCredsModal(){document.getElementById('credsModal').classList.remove('open');}
@@ -507,7 +626,7 @@ async function loadData() {
     roster={};
     var shifts=shiftRes.data||[];
     for (var i=0;i<shifts.length;i++) {
-      roster[shifts[i].employee_id+'_'+shifts[i].day]={shift_type:shifts[i].shift_type,status:shifts[i].status||'pending',decline_reason:shifts[i].decline_reason,cancel_reason:shifts[i].cancel_reason};
+      roster[shifts[i].employee_id+'_'+shifts[i].day]={shift_type:shifts[i].shift_type,status:shifts[i].status||'pending',decline_reason:shifts[i].decline_reason,cancel_reason:shifts[i].cancel_reason,notes:shifts[i].notes||null,attachment_url:shifts[i].attachment_url||null,attachment_name:shifts[i].attachment_name||null};
     }
     setSyncStatus('ok'); render();
   } catch(e){setSyncStatus('error');showToast('Connection error: '+e.message,true);}

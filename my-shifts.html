@@ -52,6 +52,9 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
 .summary-num { font-family:'Barlow Condensed',sans-serif; font-size:42px; font-weight:900; color:#F26522; line-height:1; }
 .summary-label { font-size:12px; color:rgba(255,255,255,0.4); font-weight:600; text-transform:uppercase; letter-spacing:0.06em; margin-top:4px; }
 .empty { text-align:center; padding:40px; color:rgba(255,255,255,0.3); font-size:15px; }
+.shift-note { font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:8px; line-height:1.5; text-align:left; background:rgba(242,101,34,0.06); border-radius:4px; padding:6px 8px; }
+.attach-link { display:block; font-size:11px; color:#F26522; text-decoration:none; margin-bottom:8px; padding:5px 8px; background:rgba(242,101,34,0.08); border-radius:4px; border:1px solid rgba(242,101,34,0.2); }
+.attach-link:hover { background:rgba(242,101,34,0.18); }
 /* MODAL */
 .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:100; align-items:center; justify-content:center; padding:20px; }
 .modal-bg.open { display:flex; }
@@ -131,6 +134,7 @@ var user=JSON.parse(sessionStorage.getItem('vtm_user')||'null');
 if (!user) window.location.href='login.html';
 document.getElementById('navName').textContent=user?user.name:'';
 
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function timeToMins(t){var p=t.split(':');return parseInt(p[0])*60+parseInt(p[1]);}
 function calcDur(s,e){var sm=timeToMins(s),em=timeToMins(e),diff=em>sm?em-sm:1440-sm+em;return Math.floor(diff/60)+'h'+(diff%60>0?' '+diff%60+'m':'');}
 
@@ -203,6 +207,8 @@ async function loadShifts(){
       if (dur) html+='<div class="shift-dur">'+dur+'</div>';
       html+='<span class="status-pill s-'+st+'">'+st.charAt(0).toUpperCase()+st.slice(1)+'</span>';
       if (s.cancel_reason) html+='<div class="reason-note">Reason: '+s.cancel_reason+'</div>';
+      if (s.notes) html+='<div class="shift-note">'+escHtml(s.notes)+'</div>';
+      if (s.attachment_url) html+='<a class="attach-link" href="'+s.attachment_url+'" target="_blank">📎 '+(s.attachment_name||'View attachment')+'</a>';
       html+='<div class="card-actions">';
       if (st==='pending'){
         html+='<button class="card-btn btn-accept" onclick="acceptShift(\''+d.day+'\')">Accept</button>';
