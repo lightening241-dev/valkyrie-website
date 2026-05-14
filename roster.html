@@ -184,6 +184,16 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 24px
   </div>
 </div>
 
+<!-- STAFF LOGINS MODAL -->
+<div class="modal-bg" id="loginsModal" onclick="closeLoginsModal()">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:520px">
+    <h3>Staff Login Credentials</h3>
+    <div class="modal-sub">All active staff accounts — keep this confidential</div>
+    <div id="loginsList"></div>
+    <button onclick="closeLoginsModal()" style="width:100%;padding:11px;background:#334155;color:#94A3B8;border:none;border-radius:6px;cursor:pointer;font-family:Barlow,sans-serif;font-weight:600;font-size:14px;margin-top:4px">Close</button>
+  </div>
+</div>
+
 <!-- CREDENTIALS MODAL -->
 <div class="modal-bg" id="credsModal">
   <div class="modal" onclick="event.stopPropagation()" style="max-width:380px">
@@ -211,6 +221,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 24px
     <div class="sync sync-ok" id="syncEl">Live</div>
     <div class="nav-user" id="navUser"></div>
     <a href="index.html" class="btn">Website</a>
+    <button class="btn" onclick="openLoginsModal()">Staff Logins</button>
     <button class="btn btn-add" onclick="openAddModal()">+ Add Staff</button>
     <button class="btn" onclick="doLogout()">Sign Out</button>
   </div>
@@ -621,6 +632,38 @@ function prevWeek(){weekOffset--;loadData();}
 function nextWeek(){weekOffset++;loadData();}
 function thisWeek(){weekOffset=0;loadData();}
 function doLogout(){sessionStorage.removeItem('vtm_user');window.location.href='login.html';}
+
+// ── Staff logins ──────────────────────────────────────────
+function openLoginsModal(){
+  var html='';
+  if(employees.length===0){
+    html='<div style="text-align:center;padding:30px;color:#475569">No staff accounts yet.</div>';
+  } else {
+    html='<div style="display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto;">';
+    for(var i=0;i<employees.length;i++){
+      var emp=employees[i];
+      var init=emp.name.split(' ').map(function(n){return n[0]||'';}).join('');
+      html+='<div style="background:#0F172A;border:1px solid #1E293B;border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;">';
+      html+='<div class="emp-av" style="background:'+emp.color+';width:32px;height:32px;font-size:12px;flex-shrink:0;">'+init+'</div>';
+      html+='<div style="flex:1;min-width:0;">';
+      html+='<div style="font-size:13px;font-weight:600;margin-bottom:4px;">'+emp.name+'</div>';
+      html+='<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+      html+='<span style="font-size:11px;color:#64748B;">Username: <span style="font-family:monospace;color:#F26522;font-size:12px;">'+( emp.username||'—')+'</span></span>';
+      html+='<span style="font-size:11px;color:#64748B;">Password: <span style="font-family:monospace;color:#E2E8F0;font-size:12px;">'+( emp.password||'—')+'</span></span>';
+      html+='</div></div>';
+      html+='<button onclick="copyCredentials(\''+emp.username+'\',\''+emp.password+'\')" style="background:rgba(242,101,34,0.1);border:1px solid rgba(242,101,34,0.3);color:#F26522;border-radius:5px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:700;white-space:nowrap;">Copy</button>';
+      html+='</div>';
+    }
+    html+='</div>';
+  }
+  document.getElementById('loginsList').innerHTML=html;
+  document.getElementById('loginsModal').classList.add('open');
+}
+function closeLoginsModal(){document.getElementById('loginsModal').classList.remove('open');}
+function copyCredentials(username,password){
+  var text='Username: '+username+'\nPassword: '+password;
+  navigator.clipboard.writeText(text).then(function(){showToast('Credentials copied!');}).catch(function(){showToast('Copy failed — select manually',true);});
+}
 
 // ── Load ─────────────────────────────────────────────────
 async function loadData(){
