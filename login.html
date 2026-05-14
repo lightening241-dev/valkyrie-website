@@ -28,6 +28,7 @@
   .back-link a { font-size: 13px; color: rgba(255,255,255,0.3); text-decoration: none; transition: color 0.2s; }
   .back-link a:hover { color: #F26522; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="bg-grid"></div>
@@ -55,36 +56,38 @@
 </div>
 
 <script>
-const USERS = {
-  // Admin
-  "admin":    { password: "VTM@admin2024", role: "admin",    name: "Admin" },
-  // Employees - username is firstname.lastname, password is their staff ID
-  "ammar.salman":    { password: "VTM001", role: "employee", name: "Ammar Salman" },
-  "rob.eid":         { password: "VTM002", role: "employee", name: "Rob Eid" },
-  "osama.eid":       { password: "VTM003", role: "employee", name: "Osama Eid" },
-  "yousef.abusamen": { password: "VTM004", role: "employee", name: "Yousef Abu-Samen" },
-  "sarah.kotb":      { password: "VTM005", role: "employee", name: "Sarah Kotb" },
-  "huzaifa.khan":    { password: "VTM006", role: "employee", name: "Huzaifa Khan" },
-  "mirjana.petrovic":{ password: "VTM007", role: "employee", name: "Mirjana Petrovic" },
-};
+var SURL = 'https://sapvbnvxsuelnossjfee.supabase.co';
+var SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNhcHZibnZ4c3VlbG5vc3NqZmVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MjU0NTQsImV4cCI6MjA5NDIwMTQ1NH0.iPSbdvCYV8oKaVY1MQy5fSKsZLHXPsTx-xGKT3VIaK0';
 
-function login() {
+var ADMIN_CREDS = { username: 'admin', password: 'VTM@admin2024', name: 'Admin', role: 'admin' };
+
+async function login() {
   const username = document.getElementById('username').value.trim().toLowerCase();
   const password = document.getElementById('password').value;
   const errorMsg = document.getElementById('errorMsg');
-  const user = USERS[username];
-  if (user && user.password === password) {
+
+  // Admin check (hardcoded)
+  if (username === ADMIN_CREDS.username && password === ADMIN_CREDS.password) {
     errorMsg.style.display = 'none';
-    sessionStorage.setItem('vtm_user', JSON.stringify({ username, name: user.name, role: user.role }));
-    if (user.role === 'admin') {
-      window.location.href = 'roster.html';
-    } else {
-      window.location.href = 'my-shifts.html';
-    }
-  } else {
-    errorMsg.style.display = 'block';
-    document.getElementById('password').value = '';
+    sessionStorage.setItem('vtm_user', JSON.stringify({ username, name: ADMIN_CREDS.name, role: ADMIN_CREDS.role }));
+    window.location.href = 'roster.html';
+    return;
   }
+
+  // Staff check via Supabase
+  try {
+    var sb = supabase.createClient(SURL, SKEY);
+    var res = await sb.from('employees').select('id,name,role,username,password').eq('username', username).single();
+    if (!res.error && res.data && res.data.password === password) {
+      errorMsg.style.display = 'none';
+      sessionStorage.setItem('vtm_user', JSON.stringify({ username, name: res.data.name, role: 'employee', id: res.data.id }));
+      window.location.href = 'my-shifts.html';
+      return;
+    }
+  } catch(e) {}
+
+  errorMsg.style.display = 'block';
+  document.getElementById('password').value = '';
 }
 </script>
 </body>
