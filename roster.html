@@ -249,7 +249,7 @@ var COLORS=['#EF4444','#F97316','#EAB308','#22C55E','#14B8A6','#3B82F6','#8B5CF6
 
 // 15-min slots: 05:00 → 23:45 (76 slots, index 0–75)
 var TIME_SLOTS=[];
-(function(){for(var h=5;h<24;h++)for(var m=0;m<60;m+=15)TIME_SLOTS.push((h<10?'0':'')+h+':'+(m<10?'0':'')+m);})();
+(function(){for(var h=0;h<24;h++)for(var m=0;m<60;m+=15)TIME_SLOTS.push((h<10?'0':'')+h+':'+(m<10?'0':'')+m);})();
 
 function slotIndex(t){for(var i=0;i<TIME_SLOTS.length;i++)if(TIME_SLOTS[i]===t)return i;return -1;}
 function pad(n){return n<10?'0'+n:''+n;}
@@ -612,7 +612,7 @@ function selectDay(idx){
 }
 function scrollToNow(){
   var now=new Date();
-  var slot=(now.getHours()-5)*4+Math.floor(now.getMinutes()/15);
+  var slot=now.getHours()*4+Math.floor(now.getMinutes()/15);
   slot=Math.max(0,Math.min(slot,TIME_SLOTS.length-1));
   var sc=document.getElementById('gridScroll');
   if(sc)sc.scrollLeft=Math.max(0,slot*28-220);
