@@ -663,7 +663,9 @@ async function addEmployee(){
     employees.push(res.data);
     document.getElementById('newName').value='';document.getElementById('newPhone').value='';document.getElementById('newEmail').value='';
     closeAddModal();setSyncStatus('ok');renderGrid();
+    console.log('Email address captured:',email);
     if(email) sendEmail(email,'Your Valkyrie TM Staff Account',welcomeEmailHtml(name,username,tempPw));
+    else console.warn('No email entered — skipping welcome email');
     document.getElementById('credsUsername').textContent=username;
     document.getElementById('credsTempPw').textContent=tempPw;
     document.getElementById('credsEmailNote').textContent=email?'Login details sent to '+email+'. Share below as backup if needed.':'No email on file — share these credentials manually.';
