@@ -271,11 +271,7 @@ var SITE_URL='https://valkyrie-tm.netlify.app';
 async function sendEmail(to,subject,html){
   if(!to)return;
   try{
-    await fetch('https://api.resend.com/emails',{
-      method:'POST',
-      headers:{'Authorization':'Bearer '+RESEND_KEY,'Content-Type':'application/json'},
-      body:JSON.stringify({from:FROM_EMAIL,to:to,subject:subject,html:html})
-    });
+    await sb.functions.invoke('send-email',{body:{to,subject,html}});
   }catch(e){console.warn('Email failed:',e);}
 }
 function welcomeEmailHtml(name,username,tempPw){
