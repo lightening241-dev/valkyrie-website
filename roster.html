@@ -271,13 +271,12 @@ var SITE_URL='https://valkyrie-tm.netlify.app';
 async function sendEmail(to,subject,html){
   if(!to)return;
   try{
-    var res=await fetch(SURL+'/functions/v1/send-email',{
+    var res=await fetch('/.netlify/functions/send-email',{
       method:'POST',
-      headers:{'Authorization':'Bearer '+SKEY,'Content-Type':'application/json','apikey':SKEY},
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({to:to,subject:subject,html:html})
     });
     var data=await res.json();
-    console.log('Email response:',data);
     if(!res.ok) console.error('Email failed:',data);
   }catch(e){console.error('Email error:',e);}
 }
