@@ -202,16 +202,20 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 24px
 
 <!-- CREDENTIALS MODAL -->
 <div class="modal-bg" id="credsModal">
-  <div class="modal" onclick="event.stopPropagation()" style="max-width:380px">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:400px">
     <h3>Account Created</h3>
-    <div class="modal-sub">Share the username — staff will set their own password on first login</div>
-    <div class="detail-box" style="margin-bottom:16px">
+    <p id="credsEmailNote" style="font-size:13px;color:#64748B;margin-bottom:16px;"></p>
+    <div class="detail-box" style="margin-bottom:10px">
       <div class="detail-label">Username</div>
-      <div class="detail-val" id="credsUsername" style="font-family:monospace;font-size:20px;color:#F26522;margin-top:6px;letter-spacing:0.02em"></div>
+      <div class="detail-val" id="credsUsername" style="font-family:monospace;font-size:18px;color:#F26522;margin-top:6px;"></div>
     </div>
-    <p style="font-size:12px;color:#64748B;margin-bottom:16px">When they first sign in they will be prompted to set their own password.</p>
+    <div class="detail-box" style="margin-bottom:16px">
+      <div class="detail-label">Temporary Password</div>
+      <div class="detail-val" id="credsTempPw" style="font-family:monospace;font-size:18px;color:#F26522;margin-top:6px;"></div>
+    </div>
+    <p style="font-size:11px;color:#475569;margin-bottom:16px">Staff will be prompted to set their own password on first login.</p>
     <div style="display:flex;gap:10px">
-      <button onclick="copyCredsUsername()" style="flex:1;padding:11px;background:rgba(242,101,34,0.1);color:#F26522;border:1px solid rgba(242,101,34,0.3);border-radius:6px;cursor:pointer;font-family:Barlow,sans-serif;font-weight:700;font-size:13px">Copy Username</button>
+      <button onclick="copyCredsUsername()" style="flex:1;padding:11px;background:rgba(242,101,34,0.1);color:#F26522;border:1px solid rgba(242,101,34,0.3);border-radius:6px;cursor:pointer;font-family:Barlow,sans-serif;font-weight:700;font-size:13px">Copy</button>
       <button onclick="closeCredsModal()" style="flex:1;padding:11px;background:#F26522;color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:Barlow,sans-serif;font-weight:700;font-size:13px">Done</button>
     </div>
   </div>
@@ -259,6 +263,51 @@ var EJS_SERVICE_ID='service_b1x65cd';
 var EJS_TEMPLATE_WORKER='template_4wt3jsr';
 var ADMIN_EMAIL='ammar@valkyrietm.com.au';
 var EMAIL_ENABLED=true;
+
+var RESEND_KEY='re_TJb4rppc_B2Fspow55CfSrxFkZS55tvCK';
+var FROM_EMAIL='Valkyrie TM <onboarding@resend.dev>';
+var SITE_URL='https://valkyrie-tm.netlify.app';
+
+async function sendEmail(to,subject,html){
+  if(!to)return;
+  try{
+    await fetch('https://api.resend.com/emails',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+RESEND_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({from:FROM_EMAIL,to:to,subject:subject,html:html})
+    });
+  }catch(e){console.warn('Email failed:',e);}
+}
+function welcomeEmailHtml(name,username,tempPw){
+  return '<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;background:#0A0A0A;color:#fff;padding:32px;border-radius:8px;">'
+    +'<img src="'+SITE_URL+'/favicon.png" style="height:48px;margin-bottom:20px;"><br>'
+    +'<h2 style="color:#F26522;font-size:24px;margin-bottom:6px;">Welcome to Valkyrie TM</h2>'
+    +'<p style="color:rgba(255,255,255,0.6);margin-bottom:28px;">Hi '+name+', your staff account is ready. Use the details below to sign in, then set your own password.</p>'
+    +'<div style="background:#1A1A1A;border-radius:6px;padding:16px;margin-bottom:12px;">'
+    +'<div style="font-size:11px;color:#F26522;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Username</div>'
+    +'<div style="font-family:monospace;font-size:22px;color:#fff;">'+username+'</div></div>'
+    +'<div style="background:#1A1A1A;border-radius:6px;padding:16px;margin-bottom:28px;">'
+    +'<div style="font-size:11px;color:#F26522;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Temporary Password</div>'
+    +'<div style="font-family:monospace;font-size:22px;color:#fff;">'+tempPw+'</div></div>'
+    +'<p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:20px;">You will be prompted to set your own password when you first sign in.</p>'
+    +'<a href="'+SITE_URL+'/login.html" style="display:inline-block;background:#F26522;color:#fff;padding:13px 28px;border-radius:4px;text-decoration:none;font-weight:700;font-size:15px;">Sign In →</a>'
+    +'</div>';
+}
+function resetEmailHtml(name,username,tempPw){
+  return '<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;background:#0A0A0A;color:#fff;padding:32px;border-radius:8px;">'
+    +'<img src="'+SITE_URL+'/favicon.png" style="height:48px;margin-bottom:20px;"><br>'
+    +'<h2 style="color:#F26522;font-size:24px;margin-bottom:6px;">Password Reset</h2>'
+    +'<p style="color:rgba(255,255,255,0.6);margin-bottom:28px;">Hi '+name+', your password has been reset by an admin. Use the temporary password below to sign in.</p>'
+    +'<div style="background:#1A1A1A;border-radius:6px;padding:16px;margin-bottom:12px;">'
+    +'<div style="font-size:11px;color:#F26522;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Username</div>'
+    +'<div style="font-family:monospace;font-size:22px;color:#fff;">'+username+'</div></div>'
+    +'<div style="background:#1A1A1A;border-radius:6px;padding:16px;margin-bottom:28px;">'
+    +'<div style="font-size:11px;color:#F26522;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Temporary Password</div>'
+    +'<div style="font-family:monospace;font-size:22px;color:#fff;">'+tempPw+'</div></div>'
+    +'<p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:20px;">You will be prompted to set a new password when you sign in.</p>'
+    +'<a href="'+SITE_URL+'/login.html" style="display:inline-block;background:#F26522;color:#fff;padding:13px 28px;border-radius:4px;text-decoration:none;font-weight:700;font-size:15px;">Sign In →</a>'
+    +'</div>';
+}
 
 var DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 var COLORS=['#EF4444','#F97316','#EAB308','#22C55E','#14B8A6','#3B82F6','#8B5CF6','#EC4899','#F26522','#06B6D4'];
@@ -611,7 +660,10 @@ async function addEmployee(){
     employees.push(res.data);
     document.getElementById('newName').value='';document.getElementById('newPhone').value='';document.getElementById('newEmail').value='';
     closeAddModal();setSyncStatus('ok');renderGrid();
+    if(email) sendEmail(email,'Your Valkyrie TM Staff Account',welcomeEmailHtml(name,username,tempPw));
     document.getElementById('credsUsername').textContent=username;
+    document.getElementById('credsTempPw').textContent=tempPw;
+    document.getElementById('credsEmailNote').textContent=email?'Login details sent to '+email+'. Share below as backup if needed.':'No email on file — share these credentials manually.';
     document.getElementById('credsModal').classList.add('open');
   }catch(e){setSyncStatus('error');showToast('Error: '+e.message,true);}
 }
@@ -684,19 +736,20 @@ async function resetPassword(empId,empName){
     var emp=employees.find(function(e){return e.id===empId;});
     if(emp){emp.password=tempPw;emp.must_change_password=true;}
     setSyncStatus('ok');
+    if(emp&&emp.email) sendEmail(emp.email,'Password Reset — Valkyrie TM',resetEmailHtml(empName,emp.username,tempPw));
+    openLoginsModal();
     var box=document.getElementById('resetResult');
     document.getElementById('resetEmpName').textContent=empName;
     document.getElementById('resetUsername').textContent=emp?emp.username:'—';
     document.getElementById('resetTempPw').textContent=tempPw;
     box.style.display='block';
-    box.scrollIntoView({behavior:'smooth',block:'nearest'});
-    openLoginsModal();
-    document.getElementById('resetResult').style.display='block';
   }catch(e){setSyncStatus('error');showToast('Error: '+e.message,true);}
 }
 function copyCredsUsername(){
   var u=document.getElementById('credsUsername').textContent;
-  navigator.clipboard.writeText(u).then(function(){showToast('Username copied!');}).catch(function(){showToast('Copy failed',true);});
+  var p=document.getElementById('credsTempPw').textContent;
+  var text='Username: '+u+'\nTemporary Password: '+p+'\nLogin: '+SITE_URL+'/login.html';
+  navigator.clipboard.writeText(text).then(function(){showToast('Credentials copied!');}).catch(function(){showToast('Copy failed',true);});
 }
 
 // ── Load ─────────────────────────────────────────────────
