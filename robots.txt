@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /roster.html
+Disallow: /my-shifts.html
+Disallow: /login.html
+
+Sitemap: https://www.valkyrietm.com.au/sitemap.xml
