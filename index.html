@@ -442,6 +442,23 @@
   document.getElementById('applyForm').addEventListener('submit', function(e) {
     e.preventDefault(); submitForm('applyForm', '✓ Application Received!', 'Submit Application →');
   });
+  (function() {
+    var track = document.querySelector('.marquee-track');
+    if (!track) return;
+    var items = Array.from(track.querySelectorAll('.marquee-item'));
+    var half = Math.floor(items.length / 2);
+    function makeItem() {
+      var d = document.createElement('div');
+      d.className = 'marquee-item';
+      var i = document.createElement('img');
+      i.src = 'sadaqa-logo.png';
+      i.alt = 'Sadaqa Welfare Fund';
+      d.appendChild(i);
+      return d;
+    }
+    items[half - 1].after(makeItem());
+    track.appendChild(makeItem());
+  })();
 </script>
 </body>
 </html>
