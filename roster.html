@@ -107,6 +107,37 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 24px
 .s-declined{color:#EF4444;background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.4);}
 .s-cancelled{color:#9CA3AF;background:rgba(156,163,175,0.06);border-color:rgba(156,163,175,0.25);}
 .s-off{color:#4B5563;background:rgba(75,85,99,0.08);border-color:rgba(75,85,99,0.2);}
+/* TIMESHEETS */
+#tsModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;overflow-y:auto;padding:20px;}
+.ts-box{background:#1E293B;border-radius:10px;max-width:1100px;margin:0 auto;padding:28px;}
+.ts-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap;}
+.ts-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;text-transform:uppercase;}
+.ts-actions{display:flex;gap:8px;align-items:center;}
+.ts-week{font-size:13px;color:rgba(255,255,255,0.5);min-width:150px;text-align:center;}
+table.ts-table{width:100%;border-collapse:collapse;font-size:12px;}
+table.ts-table th{background:#0F172A;padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#64748B;border-bottom:2px solid #334155;}
+table.ts-table td{padding:8px 10px;border-bottom:1px solid #1E293B;vertical-align:middle;}
+table.ts-table tr:hover td{background:rgba(255,255,255,0.03);}
+.ts-emp{font-weight:600;font-size:13px;}
+.ts-role{font-size:10px;color:#F26522;text-transform:uppercase;letter-spacing:0.05em;}
+.ts-shift{font-size:11px;color:#94A3B8;}
+.ts-hrs{font-size:11px;color:#22C55E;font-weight:600;}
+.ts-off{font-size:11px;color:#334155;}
+.ts-total{font-weight:700;color:#F26522;}
+.ts-grand{background:#0F172A!important;font-weight:700;}
+@media print{
+  body>*{display:none!important;}
+  #tsModal{display:block!important;position:static!important;background:none!important;padding:0!important;}
+  .ts-box{box-shadow:none!important;border:none!important;background:white!important;color:#000!important;padding:10px!important;}
+  .ts-actions{display:none!important;}
+  table.ts-table th{background:#eee!important;color:#000!important;border-color:#ccc!important;}
+  table.ts-table td{border-color:#ccc!important;color:#000!important;}
+  .ts-emp,.ts-total{color:#000!important;}
+  .ts-role{color:#F26522!important;}
+  .ts-hrs{color:#16a34a!important;}
+  .ts-off{color:#999!important;}
+  .ts-grand{background:#f5f5f5!important;}
+}
 </style>
 </head>
 <body>
@@ -222,6 +253,23 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 24px
   </div>
 </div>
 
+<!-- TIMESHEETS MODAL -->
+<div id="tsModal">
+  <div class="ts-box">
+    <div class="ts-header">
+      <div class="ts-title">Timesheets</div>
+      <div class="ts-actions">
+        <button class="btn" onclick="tsPrevWeek()">◀ Prev</button>
+        <span class="ts-week" id="tsWeekLabel"></span>
+        <button class="btn" onclick="tsNextWeek()">Next ▶</button>
+        <button class="btn btn-add" onclick="window.print()">Print / Save PDF</button>
+        <button class="btn" onclick="closeTimesheets()">Close</button>
+      </div>
+    </div>
+    <div id="tsContent"></div>
+  </div>
+</div>
+
 <nav>
   <div class="nav-left">
     <img src="favicon.png" alt="VTM" class="nav-logo">
@@ -231,6 +279,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 24px
     <div class="sync sync-ok" id="syncEl">Live</div>
     <div class="nav-user" id="navUser"></div>
     <a href="index.html" class="btn">Website</a>
+    <button class="btn" onclick="openTimesheets()">Timesheets</button>
     <button class="btn" onclick="openLoginsModal()">Staff Logins</button>
     <button class="btn btn-add" onclick="openAddModal()">+ Add Staff</button>
     <button class="btn" onclick="doLogout()">Sign Out</button>
@@ -702,6 +751,85 @@ function prevWeek(){weekOffset--;loadData();}
 function nextWeek(){weekOffset++;loadData();}
 function thisWeek(){weekOffset=0;loadData();}
 function doLogout(){sessionStorage.removeItem('vtm_user');window.location.href='login.html';}
+
+// ── Timesheets ────────────────────────────────────────────
+var tsWeekOffset=0;
+function getTsWeekStart(offset){
+  var d=new Date();
+  var day=d.getDay(),diff=d.getDate()-day+(day===0?-6:1);
+  d.setDate(diff+(offset||0)*7);
+  return d.toISOString().split('T')[0];
+}
+function calcHours(shiftType){
+  if(!shiftType||shiftType==='off')return 0;
+  var pts=shiftType.split('-');
+  if(pts.length!==2)return 0;
+  var s=pts[0].split(':').map(Number),e=pts[1].split(':').map(Number);
+  var start=s[0]*60+(s[1]||0),end=e[0]*60+(e[1]||0);
+  if(end<=start)end+=1440;
+  return Math.round((end-start)/60*10)/10;
+}
+async function openTimesheets(){
+  tsWeekOffset=0;
+  document.getElementById('tsModal').style.display='block';
+  document.body.style.overflow='hidden';
+  await renderTimesheets();
+}
+function closeTimesheets(){
+  document.getElementById('tsModal').style.display='none';
+  document.body.style.overflow='';
+}
+async function tsPrevWeek(){tsWeekOffset--;await renderTimesheets();}
+async function tsNextWeek(){tsWeekOffset++;await renderTimesheets();}
+async function renderTimesheets(){
+  var weekStart=getTsWeekStart(tsWeekOffset);
+  var days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var d=new Date(weekStart);
+  var weekEnd=new Date(d);weekEnd.setDate(d.getDate()+6);
+  document.getElementById('tsWeekLabel').textContent=
+    d.toLocaleDateString('en-AU',{day:'numeric',month:'short'})+' – '+
+    weekEnd.toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('tsContent').innerHTML='<p style="color:#64748B;font-size:13px">Loading...</p>';
+  var empRes=await sb.from('employees').select('id,name,role').order('name');
+  var shiftRes=await sb.from('roster_shifts').select('*').eq('week_start',weekStart);
+  if(empRes.error||shiftRes.error){document.getElementById('tsContent').innerHTML='<p style="color:#EF4444">Error loading data.</p>';return;}
+  var emps=empRes.data||[];
+  var shifts=shiftRes.data||[];
+  var shiftMap={};
+  shifts.forEach(function(s){shiftMap[s.employee_id+'_'+s.day]=s;});
+  var html='<table class="ts-table"><thead><tr>';
+  html+='<th>Employee</th>';
+  var dateCols=[];
+  for(var di=0;di<7;di++){var dd=new Date(d);dd.setDate(d.getDate()+di);dateCols.push(dd);html+='<th>'+days[di]+'<br><span style="font-weight:400;color:#475569">'+dd.toLocaleDateString('en-AU',{day:'numeric',month:'short'})+'</span></th>';}
+  html+='<th>Total Hrs</th></tr></thead><tbody>';
+  var grandTotal=0;
+  var dayTotals=new Array(7).fill(0);
+  emps.forEach(function(emp){
+    var rowTotal=0;
+    html+='<tr><td><div class="ts-emp">'+emp.name+'</div><div class="ts-role">'+emp.role+'</div></td>';
+    for(var di=0;di<7;di++){
+      var key=emp.id+'_'+days[di];
+      var s=shiftMap[key];
+      if(s&&s.shift_type&&s.shift_type!=='off'){
+        var hrs=calcHours(s.shift_type);
+        rowTotal+=hrs;
+        dayTotals[di]+=hrs;
+        html+='<td><div class="ts-shift">'+s.shift_type+'</div><div class="ts-hrs">'+hrs+'h</div></td>';
+      } else if(s&&s.shift_type==='off'){
+        html+='<td><div class="ts-off">Off</div></td>';
+      } else {
+        html+='<td><div class="ts-off">—</div></td>';
+      }
+    }
+    grandTotal+=rowTotal;
+    html+='<td class="ts-total">'+Math.round(rowTotal*10)/10+'h</td></tr>';
+  });
+  html+='<tr class="ts-grand"><td><strong>Total</strong></td>';
+  for(var di=0;di<7;di++)html+='<td><strong>'+(dayTotals[di]?Math.round(dayTotals[di]*10)/10+'h':'—')+'</strong></td>';
+  html+='<td class="ts-total">'+Math.round(grandTotal*10)/10+'h</td></tr>';
+  html+='</tbody></table>';
+  document.getElementById('tsContent').innerHTML=html;
+}
 
 // ── Staff logins ──────────────────────────────────────────
 function openLoginsModal(){
