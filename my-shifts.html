@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Shifts | Valkyrie TM</title>
-<link rel="icon" type="image/x-icon" href="favicon.ico">
-<link rel="icon" type="image/png" href="favicon.png">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" href="/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -105,9 +105,9 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
   <div class="page-title">My Shifts</div>
   <div class="page-sub" id="weekRange">Loading your schedule...</div>
   <div class="week-nav">
-    <button class="btn-week" onclick="prevWeek()">← Previous</button>
+    <button class="btn-week" onclick="prevWeek()">â† Previous</button>
     <div class="week-label" id="weekLabel"></div>
-    <button class="btn-week" onclick="nextWeek()">Next →</button>
+    <button class="btn-week" onclick="nextWeek()">Next â†’</button>
     <button class="btn-week" onclick="thisWeek()">Today</button>
   </div>
   <div class="shifts-grid" id="shiftsGrid"><div style="grid-column:span 7" class="empty">Loading shifts...</div></div>
@@ -209,7 +209,7 @@ async function loadShifts(){
       html+='<span class="status-pill s-'+st+'">'+st.charAt(0).toUpperCase()+st.slice(1)+'</span>';
       if (s.cancel_reason) html+='<div class="reason-note">Reason: '+s.cancel_reason+'</div>';
       if (s.notes) html+='<div class="shift-note">'+escHtml(s.notes)+'</div>';
-      if (s.attachment_url) html+='<a class="attach-link" href="'+s.attachment_url+'" target="_blank">📎 '+(s.attachment_name||'View attachment')+'</a>';
+      if (s.attachment_url) html+='<a class="attach-link" href="'+s.attachment_url+'" target="_blank">ðŸ“Ž '+(s.attachment_name||'View attachment')+'</a>';
       html+='<div class="card-actions">';
       if (st==='pending'){
         html+='<button class="card-btn btn-accept" onclick="acceptShift(\''+d.day+'\')">Accept</button>';
@@ -253,7 +253,7 @@ async function declineShift(day){
 
 function openCancelModal(day, shiftTime){
   cancelTarget={day:day,shiftTime:shiftTime};
-  document.getElementById('cancelModalSub').textContent=day+' — '+shiftTime;
+  document.getElementById('cancelModalSub').textContent=day+' â€” '+shiftTime;
   document.getElementById('cancelReason').value='';
   document.getElementById('cancelModal').classList.add('open');
 }

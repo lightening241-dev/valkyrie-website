@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Roster Admin | Valkyrie TM</title>
-<link rel="icon" type="image/x-icon" href="favicon.ico">
-<link rel="icon" type="image/png" href="favicon.png">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" href="/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -152,7 +152,7 @@ table.ts-table tr:hover td{background:rgba(255,255,255,0.03);}
       <div><span class="tlabel">Start Time</span><select class="tsel" id="startTime" onchange="updateDuration()"></select></div>
       <div><span class="tlabel">End Time</span><select class="tsel" id="endTime" onchange="updateDuration()"></select></div>
     </div>
-    <div class="dur" id="durationDisplay">Duration: —</div>
+    <div class="dur" id="durationDisplay">Duration: â€”</div>
     <div class="wlabel">Apply to workers</div>
     <div class="wlist" id="workersList"></div>
     <div class="divider"></div>
@@ -163,12 +163,12 @@ table.ts-table tr:hover td{background:rgba(255,255,255,0.03);}
     <div class="fg" style="margin-bottom:14px">
       <span class="tlabel">Attachment</span>
       <div style="margin-top:6px">
-        <label for="attachInput" class="file-drop-label" id="attachLabel">📎 Attach file for workers to view</label>
+        <label for="attachInput" class="file-drop-label" id="attachLabel">ðŸ“Ž Attach file for workers to view</label>
         <input type="file" id="attachInput" style="display:none" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" onchange="handleAttach(this)">
         <div id="attachPreview" style="display:none" class="file-attached-row">
-          <span style="font-size:16px">📄</span>
+          <span style="font-size:16px">ðŸ“„</span>
           <span style="flex:1;font-size:13px;color:#22C55E;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="attachDisplayName"></span>
-          <button onclick="clearAttach()" style="background:none;border:none;color:#EF4444;cursor:pointer;font-size:18px;line-height:1;padding:0 4px">×</button>
+          <button onclick="clearAttach()" style="background:none;border:none;color:#EF4444;cursor:pointer;font-size:18px;line-height:1;padding:0 4px">Ã—</button>
         </div>
       </div>
     </div>
@@ -222,7 +222,7 @@ table.ts-table tr:hover td{background:rgba(255,255,255,0.03);}
     <h3>Staff Login Credentials</h3>
     <div class="modal-sub">Usernames for all active staff accounts</div>
     <div id="resetResult" style="display:none;background:rgba(239,68,68,0.06);border:1.5px solid rgba(239,68,68,0.3);border-radius:8px;padding:14px 16px;margin-bottom:16px;">
-      <div style="font-size:11px;font-weight:700;color:#EF4444;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px;">Password Reset — share with <span id="resetEmpName"></span></div>
+      <div style="font-size:11px;font-weight:700;color:#EF4444;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px;">Password Reset â€” share with <span id="resetEmpName"></span></div>
       <div style="font-size:12px;color:#64748B;margin-bottom:4px;">Username: <span id="resetUsername" style="font-family:monospace;color:#E2E8F0;"></span></div>
       <div style="font-size:12px;color:#64748B;margin-bottom:8px;">Temp Password: <span id="resetTempPw" style="font-family:monospace;color:#F26522;font-size:15px;font-weight:700;"></span></div>
       <div style="font-size:11px;color:#475569;">They will be prompted to set a new password on next login.</div>
@@ -259,9 +259,9 @@ table.ts-table tr:hover td{background:rgba(255,255,255,0.03);}
     <div class="ts-header">
       <div class="ts-title">Timesheets</div>
       <div class="ts-actions">
-        <button class="btn" onclick="tsPrevWeek()">◀ Prev</button>
+        <button class="btn" onclick="tsPrevWeek()">â—€ Prev</button>
         <span class="ts-week" id="tsWeekLabel"></span>
-        <button class="btn" onclick="tsNextWeek()">Next ▶</button>
+        <button class="btn" onclick="tsNextWeek()">Next â–¶</button>
         <button class="btn btn-add" onclick="window.print()">Print / Save PDF</button>
         <button class="btn" onclick="closeTimesheets()">Close</button>
       </div>
@@ -290,9 +290,9 @@ table.ts-table tr:hover td{background:rgba(255,255,255,0.03);}
   <div class="top-bar">
     <div class="page-title">Weekly Schedule</div>
     <div class="week-nav">
-      <button class="btn" onclick="prevWeek()">◀ Prev</button>
+      <button class="btn" onclick="prevWeek()">â—€ Prev</button>
       <div class="week-label" id="weekLabel"></div>
-      <button class="btn" onclick="nextWeek()">Next ▶</button>
+      <button class="btn" onclick="nextWeek()">Next â–¶</button>
       <button class="btn" onclick="thisWeek()">Today</button>
     </div>
   </div>
@@ -342,7 +342,7 @@ function welcomeEmailHtml(name,username,tempPw){
     +'<div style="font-size:11px;color:#F26522;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Temporary Password</div>'
     +'<div style="font-family:monospace;font-size:22px;color:#fff;">'+tempPw+'</div></div>'
     +'<p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:20px;">You will be prompted to set your own password when you first sign in.</p>'
-    +'<a href="'+SITE_URL+'/login.html" style="display:inline-block;background:#F26522;color:#fff;padding:13px 28px;border-radius:4px;text-decoration:none;font-weight:700;font-size:15px;">Sign In →</a>'
+    +'<a href="'+SITE_URL+'/login.html" style="display:inline-block;background:#F26522;color:#fff;padding:13px 28px;border-radius:4px;text-decoration:none;font-weight:700;font-size:15px;">Sign In â†’</a>'
     +'</div>';
 }
 function resetEmailHtml(name,username,tempPw){
@@ -357,14 +357,14 @@ function resetEmailHtml(name,username,tempPw){
     +'<div style="font-size:11px;color:#F26522;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Temporary Password</div>'
     +'<div style="font-family:monospace;font-size:22px;color:#fff;">'+tempPw+'</div></div>'
     +'<p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:20px;">You will be prompted to set a new password when you sign in.</p>'
-    +'<a href="'+SITE_URL+'/login.html" style="display:inline-block;background:#F26522;color:#fff;padding:13px 28px;border-radius:4px;text-decoration:none;font-weight:700;font-size:15px;">Sign In →</a>'
+    +'<a href="'+SITE_URL+'/login.html" style="display:inline-block;background:#F26522;color:#fff;padding:13px 28px;border-radius:4px;text-decoration:none;font-weight:700;font-size:15px;">Sign In â†’</a>'
     +'</div>';
 }
 
 var DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 var COLORS=['#EF4444','#F97316','#EAB308','#22C55E','#14B8A6','#3B82F6','#8B5CF6','#EC4899','#F26522','#06B6D4'];
 
-// 15-min slots: 05:00 → 23:45 (76 slots, index 0–75)
+// 15-min slots: 05:00 â†’ 23:45 (76 slots, index 0â€“75)
 var TIME_SLOTS=[];
 (function(){for(var h=0;h<24;h++)for(var m=0;m<60;m+=15)TIME_SLOTS.push((h<10?'0':'')+h+':'+(m<10?'0':'')+m);})();
 
@@ -416,7 +416,7 @@ function showToast(msg,isErr){
 }
 function updateDuration(){
   var s=document.getElementById('startTime').value,e=document.getElementById('endTime').value;
-  document.getElementById('durationDisplay').textContent=s+' → '+e+' ('+calcDuration(s,e)+')';
+  document.getElementById('durationDisplay').textContent=s+' â†’ '+e+' ('+calcDuration(s,e)+')';
 }
 
 function buildTimeSelects(startVal,endVal){
@@ -441,17 +441,17 @@ function renderDayTabs(){
   }
   document.getElementById('dayTabs').innerHTML=html;
   var wdates=getWeekDates();
-  document.getElementById('weekLabel').textContent=wdates[0].month+' '+wdates[0].date+' – '+wdates[6].month+' '+wdates[6].date;
+  document.getElementById('weekLabel').textContent=wdates[0].month+' '+wdates[0].date+' â€“ '+wdates[6].month+' '+wdates[6].date;
 }
 
 function renderGrid(){
   var day=DAYS[selectedDayIdx];
   if(employees.length===0){
-    document.getElementById('gridContainer').innerHTML='<div style="padding:60px;text-align:center;color:#475569;font-size:14px">No employees — click + Add Staff to get started</div>';
+    document.getElementById('gridContainer').innerHTML='<div style="padding:60px;text-align:center;color:#475569;font-size:14px">No employees â€” click + Add Staff to get started</div>';
     return;
   }
   var html='<table class="tg"><thead><tr>';
-  html+='<th class="th-emp">Employee — '+day+'</th>';
+  html+='<th class="th-emp">Employee â€” '+day+'</th>';
   for(var s=0;s<TIME_SLOTS.length;s++){
     var mins=parseInt(TIME_SLOTS[s].split(':')[1]),isHour=mins===0;
     html+='<th class="th-time'+(isHour?' th-hour':'')+'">'+(isHour?TIME_SLOTS[s]:'')+'</th>';
@@ -488,23 +488,23 @@ function renderGrid(){
       }
       var inner='';
       if(isFirst&&shiftLabel){
-        var dot=shiftStatus==='accepted'?'●':shiftStatus==='declined'?'✕':shiftStatus==='cancelled'?'○':'◐';
+        var dot=shiftStatus==='accepted'?'â—':shiftStatus==='declined'?'âœ•':shiftStatus==='cancelled'?'â—‹':'â—';
         inner='<span class="shift-label">'+dot+' '+shiftLabel+'</span>';
         var icons='';
-        if(sd.notes)icons+='📝';
-        if(sd.attachment_url)icons+='📎';
+        if(sd.notes)icons+='ðŸ“';
+        if(sd.attachment_url)icons+='ðŸ“Ž';
         if(icons)inner+='<span class="shift-icons">'+icons+'</span>';
       }
       html+='<td class="'+cls+'" style="'+style+'" data-emp="'+emp.id+'" data-empidx="'+ei+'" data-slot="'+s+'" onmousedown="tcDown(event,'+ei+','+s+')" onmouseenter="tcEnter('+ei+','+s+')">'+inner+'</td>';
     }
-    html+='<td style="width:34px;text-align:center;border-top:1px solid #0D1829;vertical-align:middle;"><button class="rm-btn" onclick="removeEmp('+emp.id+')">×</button></td>';
+    html+='<td style="width:34px;text-align:center;border-top:1px solid #0D1829;vertical-align:middle;"><button class="rm-btn" onclick="removeEmp('+emp.id+')">Ã—</button></td>';
     html+='</tr>';
   }
   html+='</tbody></table>';
   document.getElementById('gridContainer').innerHTML=html;
 }
 
-// ── Drag ────────────────────────────────────────────────
+// â”€â”€ Drag â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function tcDown(e,empIdx,slot){
   if(e.button!==0)return;
   e.preventDefault();
@@ -542,7 +542,7 @@ document.addEventListener('mouseup',function(){
   var endTime=sMax+1<TIME_SLOTS.length?TIME_SLOTS[sMax+1]:'00:00';
   var selEmps=[];
   for(var i=eMin;i<=eMax;i++)if(employees[i])selEmps.push(employees[i].id);
-  // Single cell click — check if on an existing shift
+  // Single cell click â€” check if on an existing shift
   if(eMin===eMax&&sMin===sMax){
     var empId=employees[eMin]?employees[eMin].id:-1;
     var day=DAYS[selectedDayIdx];
@@ -559,7 +559,7 @@ document.addEventListener('mouseup',function(){
   openAssignModal(selEmps,startTime,endTime);
 });
 
-// ── Modal open ──────────────────────────────────────────
+// â”€â”€ Modal open â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openAssignModal(empIds,startTime,endTime){
   var day=DAYS[selectedDayIdx];
   modalDay=day;
@@ -579,19 +579,19 @@ function openAssignModal(empIds,startTime,endTime){
   document.getElementById('shiftModal').classList.add('open');
 }
 
-// ── Detail modal ────────────────────────────────────────
+// â”€â”€ Detail modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function showDetail(empId,day){
   detailEmpId=empId;detailDay=day;
   var key=empId+'_'+day,d=roster[key];
   var emp=employees.find(function(e){return e.id===empId;});
-  document.getElementById('detailSub').textContent=(emp?emp.name:'')+' — '+day;
+  document.getElementById('detailSub').textContent=(emp?emp.name:'')+' â€” '+day;
   var st=d.status||'pending',sc=statusClass(st),sl=statusLabel(st);
   var html='<span class="status-badge '+sc+'">'+sl+'</span>';
   html+='<div class="detail-box"><div class="detail-label">Shift Time</div><div class="detail-val">'+d.shift_type+'</div></div>';
   if(d.decline_reason)html+='<div class="detail-box"><div class="detail-label">Decline Reason</div><div class="detail-val">'+d.decline_reason+'</div></div>';
   if(d.cancel_reason)html+='<div class="detail-box"><div class="detail-label">Cancellation Reason</div><div class="detail-val">'+d.cancel_reason+'</div></div>';
   if(d.notes)html+='<div class="detail-box"><div class="detail-label">Shift Notes</div><div class="detail-val" style="font-size:13px;color:#94A3B8;line-height:1.5">'+d.notes+'</div></div>';
-  if(d.attachment_url)html+='<div class="detail-box"><div class="detail-label">Attachment</div><a href="'+d.attachment_url+'" target="_blank" style="color:#F26522;font-size:14px;text-decoration:none">📎 '+(d.attachment_name||'View file')+'</a></div>';
+  if(d.attachment_url)html+='<div class="detail-box"><div class="detail-label">Attachment</div><a href="'+d.attachment_url+'" target="_blank" style="color:#F26522;font-size:14px;text-decoration:none">ðŸ“Ž '+(d.attachment_name||'View file')+'</a></div>';
   document.getElementById('detailContent').innerHTML=html;
   document.getElementById('detailModal').classList.add('open');
 }
@@ -615,7 +615,7 @@ function editFromDetail(){
 }
 function closeDetailModal(){document.getElementById('detailModal').classList.remove('open');detailEmpId=null;detailDay=null;}
 
-// ── Save / Day Off ──────────────────────────────────────
+// â”€â”€ Save / Day Off â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function saveShifts(){
   var start=document.getElementById('startTime').value;
   var end=document.getElementById('endTime').value;
@@ -639,7 +639,7 @@ async function saveShifts(){
       roster[upserts[i].employee_id+'_'+day]={shift_type:shiftVal,status:'pending',decline_reason:null,cancel_reason:null,notes:notes||null,attachment_url:attachUrl,attachment_name:attachName};
       if(EMAIL_ENABLED){var emp=employees.find(function(e){return e.id===upserts[i].employee_id;});if(emp&&emp.email){emailjs.send(EJS_SERVICE_ID,EJS_TEMPLATE_WORKER,{to_email:emp.email,to_name:emp.name,shift_day:day,shift_time:shiftVal,week_start:weekStart});}}
     }
-    setSyncStatus('ok');renderGrid();showToast('Saved '+checked.length+' shift'+(checked.length!==1?'s':'')+' — workers notified!');
+    setSyncStatus('ok');renderGrid();showToast('Saved '+checked.length+' shift'+(checked.length!==1?'s':'')+' â€” workers notified!');
   }catch(e){setSyncStatus('error');showToast('Error: '+e.message,true);}
 }
 async function setDayOff(){
@@ -659,7 +659,7 @@ async function setDayOff(){
   }catch(e){setSyncStatus('error');showToast('Error: '+e.message,true);}
 }
 
-// ── Helpers ─────────────────────────────────────────────
+// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function closeShiftModal(){document.getElementById('shiftModal').classList.remove('open');modalDay=null;clearAttach();}
 function openAddModal(){document.getElementById('addModal').classList.add('open');}
 function closeAddModal(){document.getElementById('addModal').classList.remove('open');}
@@ -686,7 +686,7 @@ async function uploadAttachment(){
   return{url:pub.data.publicUrl,name:attachFile.name};
 }
 
-// ── Staff ────────────────────────────────────────────────
+// â”€â”€ Staff â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function getUniqueUsername(base){
   var res=await sb.from('employees').select('username');
   var existing=(res.data||[]).map(function(e){return e.username;});
@@ -714,10 +714,10 @@ async function addEmployee(){
     closeAddModal();setSyncStatus('ok');renderGrid();
     console.log('Email address captured:',email);
     if(email) sendEmail(email,'Your Valkyrie TM Staff Account',welcomeEmailHtml(name,username,tempPw));
-    else console.warn('No email entered — skipping welcome email');
+    else console.warn('No email entered â€” skipping welcome email');
     document.getElementById('credsUsername').textContent=username;
     document.getElementById('credsTempPw').textContent=tempPw;
-    document.getElementById('credsEmailNote').textContent=email?'Login details sent to '+email+'. Share below as backup if needed.':'No email on file — share these credentials manually.';
+    document.getElementById('credsEmailNote').textContent=email?'Login details sent to '+email+'. Share below as backup if needed.':'No email on file â€” share these credentials manually.';
     document.getElementById('credsModal').classList.add('open');
   }catch(e){setSyncStatus('error');showToast('Error: '+e.message,true);}
 }
@@ -733,7 +733,7 @@ async function removeEmp(id){
   }catch(e){setSyncStatus('error');showToast('Error: '+e.message,true);}
 }
 
-// ── Navigation ───────────────────────────────────────────
+// â”€â”€ Navigation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function selectDay(idx){
   selectedDayIdx=idx;
   renderDayTabs();
@@ -752,7 +752,7 @@ function nextWeek(){weekOffset++;loadData();}
 function thisWeek(){weekOffset=0;loadData();}
 function doLogout(){sessionStorage.removeItem('vtm_user');window.location.href='login.html';}
 
-// ── Timesheets ────────────────────────────────────────────
+// â”€â”€ Timesheets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 var tsWeekOffset=0;
 function getTsWeekStart(offset){
   var d=new Date();
@@ -787,7 +787,7 @@ async function renderTimesheets(){
   var d=new Date(weekStart);
   var weekEnd=new Date(d);weekEnd.setDate(d.getDate()+6);
   document.getElementById('tsWeekLabel').textContent=
-    d.toLocaleDateString('en-AU',{day:'numeric',month:'short'})+' – '+
+    d.toLocaleDateString('en-AU',{day:'numeric',month:'short'})+' â€“ '+
     weekEnd.toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
   document.getElementById('tsContent').innerHTML='<p style="color:#64748B;font-size:13px">Loading...</p>';
   var empRes=await sb.from('employees').select('id,name,role').order('name');
@@ -818,20 +818,20 @@ async function renderTimesheets(){
       } else if(s&&s.shift_type==='off'){
         html+='<td><div class="ts-off">Off</div></td>';
       } else {
-        html+='<td><div class="ts-off">—</div></td>';
+        html+='<td><div class="ts-off">â€”</div></td>';
       }
     }
     grandTotal+=rowTotal;
     html+='<td class="ts-total">'+Math.round(rowTotal*10)/10+'h</td></tr>';
   });
   html+='<tr class="ts-grand"><td><strong>Total</strong></td>';
-  for(var di=0;di<7;di++)html+='<td><strong>'+(dayTotals[di]?Math.round(dayTotals[di]*10)/10+'h':'—')+'</strong></td>';
+  for(var di=0;di<7;di++)html+='<td><strong>'+(dayTotals[di]?Math.round(dayTotals[di]*10)/10+'h':'â€”')+'</strong></td>';
   html+='<td class="ts-total">'+Math.round(grandTotal*10)/10+'h</td></tr>';
   html+='</tbody></table>';
   document.getElementById('tsContent').innerHTML=html;
 }
 
-// ── Staff logins ──────────────────────────────────────────
+// â”€â”€ Staff logins â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openLoginsModal(){
   document.getElementById('resetResult').style.display='none';
   var html='';
@@ -847,7 +847,7 @@ function openLoginsModal(){
       html+='<div class="emp-av" style="background:'+emp.color+';width:30px;height:30px;font-size:11px;flex-shrink:0;">'+init+'</div>';
       html+='<div style="flex:1;min-width:0;">';
       html+='<div style="font-size:13px;font-weight:600;margin-bottom:3px;">'+emp.name+needsChange+'</div>';
-      html+='<div style="font-size:11px;color:#64748B;">Username: <span style="font-family:monospace;color:#F26522;">'+( emp.username||'—')+'</span></div>';
+      html+='<div style="font-size:11px;color:#64748B;">Username: <span style="font-family:monospace;color:#F26522;">'+( emp.username||'â€”')+'</span></div>';
       html+='</div>';
       html+='<button onclick="resetPassword('+emp.id+',\''+emp.name.replace(/'/g,"\\'")+'\')" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#EF4444;border-radius:5px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;">Reset Password</button>';
       html+='</div>';
@@ -860,7 +860,7 @@ function openLoginsModal(){
 function closeLoginsModal(){document.getElementById('loginsModal').classList.remove('open');}
 
 async function resetPassword(empId,empName){
-  if(!confirm('Reset password for '+empName+'?\nA temporary password will be shown to you — they must change it on next login.'))return;
+  if(!confirm('Reset password for '+empName+'?\nA temporary password will be shown to you â€” they must change it on next login.'))return;
   var tempPw='Vtm'+Math.floor(1000+Math.random()*9000);
   setSyncStatus('saving');
   try{
@@ -869,11 +869,11 @@ async function resetPassword(empId,empName){
     var emp=employees.find(function(e){return e.id===empId;});
     if(emp){emp.password=tempPw;emp.must_change_password=true;}
     setSyncStatus('ok');
-    if(emp&&emp.email) sendEmail(emp.email,'Password Reset — Valkyrie TM',resetEmailHtml(empName,emp.username,tempPw));
+    if(emp&&emp.email) sendEmail(emp.email,'Password Reset â€” Valkyrie TM',resetEmailHtml(empName,emp.username,tempPw));
     openLoginsModal();
     var box=document.getElementById('resetResult');
     document.getElementById('resetEmpName').textContent=empName;
-    document.getElementById('resetUsername').textContent=emp?emp.username:'—';
+    document.getElementById('resetUsername').textContent=emp?emp.username:'â€”';
     document.getElementById('resetTempPw').textContent=tempPw;
     box.style.display='block';
   }catch(e){setSyncStatus('error');showToast('Error: '+e.message,true);}
@@ -885,7 +885,7 @@ function copyCredsUsername(){
   navigator.clipboard.writeText(text).then(function(){showToast('Credentials copied!');}).catch(function(){showToast('Copy failed',true);});
 }
 
-// ── Load ─────────────────────────────────────────────────
+// â”€â”€ Load â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadData(){
   setSyncStatus('saving');
   var weekStart=getWeekStart();
