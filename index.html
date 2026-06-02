@@ -183,8 +183,17 @@
 
   @keyframes fadeUp { from { opacity:0; transform: translateY(24px); } to { opacity:1; transform: translateY(0); } }
   @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
-  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  @keyframes iconBounce { 0%,100% { transform:translateY(0) scale(1); } 40% { transform:translateY(-7px) scale(1.1); } 70% { transform:translateY(-3px) scale(1.05); } }
+  @keyframes orangeBar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1), transform 0.8s cubic-bezier(0.22,1,0.36,1); }
   .reveal.visible { opacity: 1; transform: translateY(0); }
+  .service-card:hover .service-icon { animation: iconBounce 0.55s ease; }
+  .about-pillar { will-change: transform; }
+  .hero h1 span { position: relative; }
+  .hero h1 span::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:3px; background:var(--orange); border-radius:2px; transition: width 1s 1.3s cubic-bezier(0.22,1,0.36,1); }
+  body.hero-ready .hero h1 span::after { width: 100%; }
+  .service-card { will-change: transform, opacity; }
+  .testimonial-card { will-change: transform, opacity; }
   .mobile-menu { display: none; position: fixed; top: 72px; left: 0; right: 0; bottom: 0; background: rgba(10,10,10,0.98); z-index: 99; flex-direction: column; align-items: center; justify-content: center; gap: 28px; overflow-y: auto; }
   .mobile-menu.open { display: flex; }
   .mobile-menu a { font-family: 'Barlow Condensed', sans-serif; font-size: 30px; font-weight: 800; text-transform: uppercase; color: white; text-decoration: none; }
@@ -203,6 +212,8 @@
     footer { flex-direction: column; text-align: center; }
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
 </head>
 <body>
 
@@ -459,6 +470,123 @@
     items[half - 1].after(makeItem());
     track.appendChild(makeItem());
   })();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+
+  // ── Hero entrance (replaces CSS fadeUp) ───────────────────────────────────
+  const heroSels = ['.hero-badge', '.hero h1', '.hero-sub', '.hero-btns', '.hero-stats'];
+  heroSels.forEach(function(sel) {
+    var el = document.querySelector(sel);
+    if (el) { el.style.animation = 'none'; el.style.opacity = '0'; el.style.transform = 'translateY(30px)'; }
+  });
+  gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.65 } })
+    .delay(0.15)
+    .to('.hero-badge', { opacity: 1, y: 0 })
+    .to('.hero h1',    { opacity: 1, y: 0 }, '-=0.35')
+    .to('.hero-sub',   { opacity: 1, y: 0 }, '-=0.4')
+    .to('.hero-btns',  { opacity: 1, y: 0 }, '-=0.4')
+    .to('.hero-stats', { opacity: 1, y: 0 }, '-=0.4')
+    .call(function() { document.body.classList.add('hero-ready'); });
+
+  // ── Hero ambient glow pulse ────────────────────────────────────────────────
+  gsap.to('.hero-accent',  { opacity: 0.55, duration: 3.5, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+  gsap.to('.hero-accent2', { opacity: 0.45, duration: 4.5, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 1.5 });
+
+  // ── Hero parallax ──────────────────────────────────────────────────────────
+  var hTrig = { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1.5 };
+  gsap.to('.hero-accent',  { scrollTrigger: hTrig, y: -130, ease: 'none' });
+  gsap.to('.hero-accent2', { scrollTrigger: hTrig, y: -60,  ease: 'none' });
+  gsap.to('.hero-grid',    { scrollTrigger: hTrig, y: -50,  ease: 'none' });
+
+  // ── Stats count-up ─────────────────────────────────────────────────────────
+  ScrollTrigger.create({
+    trigger: '.hero-stats', start: 'top 90%', once: true,
+    onEnter: function() {
+      document.querySelectorAll('.stat-num').forEach(function(el) {
+        var raw = el.textContent.trim();
+        if (raw === '24/7') return;
+        var num = parseFloat(raw.replace(/[^\d.]/g, ''));
+        if (isNaN(num)) return;
+        var suffix = raw.replace(/[\d.]/g, '');
+        var startTs = null, dur = 1800;
+        function step(ts) {
+          if (!startTs) startTs = ts;
+          var p = Math.min((ts - startTs) / dur, 1);
+          var v = Math.round(num * (1 - Math.pow(1 - p, 4)));
+          el.textContent = v + suffix;
+          if (p < 1) requestAnimationFrame(step); else el.textContent = raw;
+        }
+        requestAnimationFrame(step);
+      });
+    }
+  });
+
+  // ── Section tag / title / sub reveals ─────────────────────────────────────
+  gsap.utils.toArray('.section-tag').forEach(function(el) {
+    gsap.from(el, { scrollTrigger: { trigger: el, start: 'top 88%', once: true }, x: -24, opacity: 0, duration: 0.5, ease: 'power2.out' });
+  });
+  gsap.utils.toArray('.section-title').forEach(function(el) {
+    gsap.from(el, { scrollTrigger: { trigger: el, start: 'top 88%', once: true }, y: 28, opacity: 0, duration: 0.7, ease: 'power3.out', delay: 0.05 });
+  });
+  gsap.utils.toArray('.section-sub, .clients-subtitle').forEach(function(el) {
+    gsap.from(el, { scrollTrigger: { trigger: el, start: 'top 88%', once: true }, y: 18, opacity: 0, duration: 0.6, ease: 'power2.out', delay: 0.12 });
+  });
+
+  // ── Service cards stagger ──────────────────────────────────────────────────
+  gsap.from('.service-card', {
+    scrollTrigger: { trigger: '.services-grid', start: 'top 78%', once: true },
+    y: 65, opacity: 0, duration: 0.75, stagger: { amount: 0.6 }, ease: 'power3.out'
+  });
+
+  // ── About text + values + pillars ──────────────────────────────────────────
+  gsap.from('.about-text p', {
+    scrollTrigger: { trigger: '.about-text', start: 'top 80%', once: true },
+    y: 25, opacity: 0, duration: 0.6, stagger: 0.15, ease: 'power2.out'
+  });
+  gsap.from('.value-item', {
+    scrollTrigger: { trigger: '.values-grid', start: 'top 82%', once: true },
+    y: 30, opacity: 0, scale: 0.94, duration: 0.5, stagger: { amount: 0.35 }, ease: 'back.out(1.7)'
+  });
+  gsap.from('.about-pillar', {
+    scrollTrigger: { trigger: '.about-pillars', start: 'top 78%', once: true },
+    x: 55, opacity: 0, duration: 0.55, stagger: { amount: 0.5 }, ease: 'power3.out'
+  });
+
+  // ── Testimonial cards stagger ──────────────────────────────────────────────
+  gsap.from('.testimonial-card', {
+    scrollTrigger: { trigger: '.testimonials-grid', start: 'top 82%', once: true },
+    y: 55, opacity: 0, duration: 0.8, stagger: { amount: 0.4 }, ease: 'power3.out'
+  });
+
+  // ── Careers section ────────────────────────────────────────────────────────
+  gsap.from('.training-banner', {
+    scrollTrigger: { trigger: '.training-banner', start: 'top 85%', once: true },
+    x: -35, opacity: 0, duration: 0.6, ease: 'power2.out'
+  });
+  gsap.from('.perk-item', {
+    scrollTrigger: { trigger: '.perks-grid', start: 'top 82%', once: true },
+    y: 22, opacity: 0, duration: 0.45, stagger: { amount: 0.4 }, ease: 'power2.out'
+  });
+  gsap.from('.apply-form-title', {
+    scrollTrigger: { trigger: '.apply-form-title', start: 'top 85%', once: true },
+    y: 20, opacity: 0, duration: 0.5, ease: 'power2.out'
+  });
+
+  // ── Contact items ──────────────────────────────────────────────────────────
+  gsap.from('.contact-info-item', {
+    scrollTrigger: { trigger: '.contact-grid', start: 'top 82%', once: true },
+    x: -35, opacity: 0, duration: 0.55, stagger: { amount: 0.4 }, ease: 'power2.out'
+  });
+
+  // ── Footer ─────────────────────────────────────────────────────────────────
+  gsap.from('footer > *', {
+    scrollTrigger: { trigger: 'footer', start: 'top 92%', once: true },
+    y: 20, opacity: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out'
+  });
+});
 </script>
 </body>
 </html>
